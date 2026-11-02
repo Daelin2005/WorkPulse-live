@@ -1,0 +1,21 @@
+services:
+  - type: web
+    name: workpulse
+    runtime: node
+    plan: free
+    buildCommand: npm ci
+    startCommand: npm run db:init && npm start
+    healthCheckPath: /api/health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: DATABASE_URL
+        fromDatabase:
+          name: workpulse-db
+          property: connectionString
+
+databases:
+  - name: workpulse-db
+    plan: free
+    databaseName: workpulse
+    user: workpulse

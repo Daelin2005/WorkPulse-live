@@ -2,7 +2,7 @@
 --
 -- Multi-tenancy: every business table carries company_id. Child tables use composite
 -- foreign keys (company_id, id), so a row can never point at another company's data.
--- Run once:  psql "$DATABASE_URL" -f database.sql
+-- Initialize with `npm run db:init` (or run once: psql "$DATABASE_URL" -f database.sql).
 -- Safe to re-run on an empty database only (it does not use IF NOT EXISTS on every object).
 
 BEGIN;
