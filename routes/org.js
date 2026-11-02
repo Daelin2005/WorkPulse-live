@@ -120,6 +120,9 @@ router.get('/employees', wrap(async (req, res) => {
 async function otherAdmins(c, companyId, exceptId) {
   return (await c.query("SELECT count(*)::int AS n FROM employees WHERE company_id = $1 AND role = 'admin' AND status = 'active' AND id <> $2", [companyId, exceptId])).rows[0].n;
 }
+async function lockCompany(c, companyId) {
+  await c.query('SELECT id FROM companies WHERE id = $1 FOR UPDATE', [companyId]);
+}
 async function deptOk(c, companyId, deptId) {
   const r = await c.query('SELECT name FROM departments WHERE id = $1 AND company_id = $2', [v.uuid(deptId, 'Department'), companyId]);
   if (!r.rowCount) throw E.bad('That department does not exist.');
@@ -179,6 +182,7 @@ router.patch('/employees/:id', admin, wrap(async (req, res) => {
   const id = v.uuid(req.params.id, 'Employee');
   const b = req.body || {};
   await db.tx(async c => {
+    await lockCompany(c, req.user.companyId);
     const cur = (await c.query('SELECT e.*, d.name AS dept_name, co.domain FROM employees e JOIN departments d ON d.id = e.department_id JOIN companies co ON co.id = e.company_id WHERE e.id = $1 AND e.company_id = $2 FOR UPDATE OF e', [id, req.user.companyId])).rows[0];
     if (!cur) throw E.notFound('Employee not found.');
     const next = {
@@ -216,6 +220,7 @@ router.patch('/employees/:id', admin, wrap(async (req, res) => {
 async function setStatus(req, res, status) {
   const id = v.uuid(req.params.id, 'Employee');
   await db.tx(async c => {
+    await lockCompany(c, req.user.companyId);
     const e = (await c.query('SELECT full_name, role, status, password_hash FROM employees WHERE id = $1 AND company_id = $2 FOR UPDATE', [id, req.user.companyId])).rows[0];
     if (!e) throw E.notFound('Employee not found.');
     if (status === 'deactivated') {
@@ -230,6 +235,28 @@ async function setStatus(req, res, status) {
 }
 router.post('/employees/:id/deactivate', admin, wrap((req, res) => setStatus(req, res, 'deactivated')));
 router.post('/employees/:id/reactivate', admin, wrap((req, res) => setStatus(req, res, 'active')));
+
+router.delete('/employees/:id', admin, wrap(async (req, res) => {
+  const id = v.uuid(req.params.id, 'Employee');
+  if (id.toLowerCase() === req.user.id.toLowerCase()) throw E.conflict('You cannot delete your own account. Ask another admin to manage it.', 'SELF_DELETE');
+  await db.tx(async c => {
+    await lockCompany(c, req.user.companyId);
+    const employee = (await c.query(
+      'SELECT full_name, role FROM employees WHERE id = $1 AND company_id = $2 FOR UPDATE',
+      [id, req.user.companyId]
+    )).rows[0];
+    if (!employee) throw E.notFound('Employee not found.');
+    if (employee.role === 'admin' && !(await otherAdmins(c, req.user.companyId, id))) {
+      throw E.conflict('Every company needs at least one active admin. Make someone else an admin first.', 'LAST_ADMIN');
+    }
+    if ((await c.query('SELECT 1 FROM tickets WHERE company_id = $1 AND submitted_by = $2 LIMIT 1', [req.user.companyId, id])).rowCount) {
+      throw E.conflict('This employee submitted tickets that must be kept. Deactivate the account instead.', 'EMPLOYEE_HAS_TICKETS');
+    }
+    await audit(c, req.user, 'Employees', 'Deleted employee', `${employee.full_name} (${employee.role})`);
+    await c.query('DELETE FROM employees WHERE id = $1 AND company_id = $2', [id, req.user.companyId]);
+  });
+  res.json({ ok: true });
+}));
 
 /* ------------------------------------------------------------ me */
 router.get('/me/profile', wrap(async (req, res) => {

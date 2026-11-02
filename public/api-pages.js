@@ -428,7 +428,7 @@
   }
 
   function loadCompany() {
-    var content = $('#content'), activeTab = 'company', state = {};
+    var content = $('#content'), activeTab = 'company', state = {}, editingEmployee = null;
     function reload() {
       return Promise.all([
         api.get('/api/company'), api.get('/api/departments'), api.get('/api/employees'),
@@ -470,7 +470,18 @@
           (admin ? '<button class="btn primary" type="submit">Save company settings</button>' : '<p class="muted">Only a company admin can change settings.</p>') + '</form></section>';
       }
       if (tab === 'people') {
-        return '<section class="card"><h2>Employees</h2>' + (admin ? '<form id="add-employee-form" class="stack"><div class="form-grid">' +
+        var editing = editingEmployee;
+        var employeeEditForm = editing ? '<section class="card"><h2>Edit employee</h2><form id="edit-employee-form" class="stack"><div class="form-grid">' +
+          field('Full name', 'fullName', { required: true, value: editing.name }) +
+          field('Username', 'username', { required: true, maxlength: 32, value: editing.username }) +
+          field('Work email', 'email', { type: 'email', required: true, value: editing.email }) +
+          field('Job title', 'jobTitle', { required: true, value: editing.jobTitle }) +
+          select('Role', 'role', ['employee', 'manager', 'admin'], editing.role) +
+          select('Department', 'departmentId', state.departments.map(function (d) { return d.id; }), editing.departmentId,
+            state.departments.reduce(function (o, d) { o[d.id] = d.name; return o; }, {})) +
+          field('Start date', 'startDate', { type: 'date', value: editing.startDate ? String(editing.startDate).slice(0, 10) : '' }) +
+          '</div><div class="actions"><button class="btn primary" type="submit">Save employee</button><button class="btn" type="button" id="cancel-employee-edit">Cancel</button></div></form></section>' : '';
+        return employeeEditForm + '<section class="card"><h2>Employees</h2>' + (admin ? '<form id="add-employee-form" class="stack"><div class="form-grid">' +
           field('Full name', 'fullName', { required: true }) + field('Username', 'username', { required: true, maxlength: 32 }) +
           field('Work email', 'email', { type: 'email', required: true }) +
           field('Job title', 'jobTitle', { required: true }) + select('Role', 'role', ['employee', 'manager', 'admin'], 'employee') +
@@ -484,8 +495,8 @@
           table(['Employee ID', 'Name', 'Username', 'Email', 'Title', 'Department', 'Role', 'Status', ''], rowsOrEmpty(state.employees.map(function (e) {
             return '<tr><td>' + esc(e.employeeNo || '—') + '</td><td>' + esc(e.name) + '</td><td>' + esc(e.username || '—') + '</td><td>' + esc(e.email || 'Private') + '</td><td>' + esc(e.jobTitle) +
               '</td><td>' + esc(e.department) + '</td><td>' + esc(e.role) + '</td><td>' + esc(e.status) + '</td><td>' +
-              (admin && e.id !== context.user.id ? '<button class="btn" data-employee="' + esc(e.id) + '" data-state="' + esc(e.status) + '">' +
-                (e.status === 'deactivated' ? 'Reactivate' : 'Deactivate') + '</button>' : '') + '</td></tr>';
+              (admin && e.id !== context.user.id ? '<div class="actions"><button class="btn" type="button" data-edit-employee="' + esc(e.id) + '">Edit</button><button class="btn" type="button" data-employee="' + esc(e.id) + '" data-state="' + esc(e.status) + '">' +
+                (e.status === 'deactivated' ? 'Reactivate' : 'Deactivate') + '</button><button class="btn danger" type="button" data-delete-employee="' + esc(e.id) + '">Delete</button></div>' : '') + '</td></tr>';
           }).join(''), 'No employees found.', 9)) + '</section>';
       }
       if (tab === 'departments') {
@@ -546,6 +557,29 @@
         });
       }
       if (activeTab === 'people' && admin) {
+        var editForm = $('#edit-employee-form');
+        if (editForm) {
+          editForm.addEventListener('submit', async function (event) {
+            event.preventDefault();
+            var values = Object.fromEntries(new FormData(this));
+            if (!values.startDate) values.startDate = null;
+            try {
+              await api.patch('/api/employees/' + editingEmployee.id, values);
+              editingEmployee = null;
+              toast('Employee updated.');
+              await reload();
+            } catch (error) { toast(problem(error), true); }
+          });
+          $('#cancel-employee-edit').addEventListener('click', function () { editingEmployee = null; render(); });
+        }
+        content.querySelectorAll('[data-edit-employee]').forEach(function (b) {
+          b.onclick = function () {
+            editingEmployee = state.employees.find(function (e) { return e.id === b.dataset.editEmployee; });
+            render();
+            var form = $('#edit-employee-form');
+            if (form) form.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          };
+        });
         var employeeForm = $('#add-employee-form');
         var employeeEmail = employeeForm.elements.email;
         var employeeUsername = employeeForm.elements.username;
@@ -577,6 +611,18 @@
             if (!confirm((action === 'deactivate' ? 'Deactivate' : 'Reactivate') + ' this employee?')) return;
             try { await api.post('/api/employees/' + id + '/' + action); toast('Employee status updated.'); reload(); }
             catch (error) { toast(problem(error), true); }
+          };
+        });
+        content.querySelectorAll('[data-delete-employee]').forEach(function (b) {
+          b.onclick = async function () {
+            var employee = state.employees.find(function (e) { return e.id === b.dataset.deleteEmployee; });
+            if (!employee || !confirm('Permanently delete ' + employee.name + '? This also deletes their attendance, leave, sessions, preferences and chat records, including groups they created and messages they sent. This cannot be undone. Employees who submitted tickets cannot be deleted; deactivate them instead.')) return;
+            try {
+              await api.del('/api/employees/' + employee.id);
+              if (editingEmployee && editingEmployee.id === employee.id) editingEmployee = null;
+              toast('Employee deleted.');
+              await reload();
+            } catch (error) { toast(problem(error), true); }
           };
         });
       }
