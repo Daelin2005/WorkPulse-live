@@ -19,13 +19,14 @@ a{color:var(--accent)}
 .logo{width:44px;height:44px;border-radius:12px;background:var(--accent);display:grid;place-items:center}
 .logo svg{width:26px;height:26px;stroke:var(--accent-ink);fill:none;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
 /* splash */
-#splash{position:fixed;inset:0;background:var(--nav);color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;text-align:center;z-index:20;padding:24px;animation:in 1s ease both;transition:opacity .8s}
+#splash{position:fixed;inset:0;background:var(--nav);color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;text-align:center;z-index:20;padding:24px;animation:in 1s ease both,splash-out .8s ease 3s forwards;transition:opacity .8s}
 #splash.out{opacity:0;pointer-events:none}
 #splash .logo{width:72px;height:72px;border-radius:20px;margin-bottom:10px}
 #splash .logo svg{width:42px;height:42px;stroke:#fff}
 #splash h1{margin:0;font-size:30px;letter-spacing:-.01em}
 #splash p{margin:0;color:#aab6c3}
 @keyframes in{from{opacity:0}to{opacity:1}}
+@keyframes splash-out{to{opacity:0;visibility:hidden;pointer-events:none}}
 /* shell */
 .shell{min-height:100vh;display:grid;grid-template-columns:minmax(320px,.95fr) minmax(380px,1.05fr)}
 .panel{isolation:isolate;position:relative;overflow:hidden;min-height:100vh;padding:clamp(28px,4vw,64px);display:grid;grid-template-rows:auto 1fr auto;gap:36px;color:#dce7ff;background:radial-gradient(ellipse at 12% 84%,#315de04d,transparent 42%),linear-gradient(145deg,#101c38 0%,#111b31 48%,#17294a 100%)}
