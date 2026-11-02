@@ -317,6 +317,7 @@ async function go(name){
 document.addEventListener('click',function(e){var a=e.target.closest('[data-go]');if(a){e.preventDefault();go(a.dataset.go)}});
 
 /* First screen: an invitation/reset link, an existing session, or standard sign-in. */
+if(!INVITE&&!RESET)go('login');
 (async function(){
   if(INVITE){
     try{inviteInfo=await api.get('/api/auth/invite-info?token='+encodeURIComponent(INVITE))}
