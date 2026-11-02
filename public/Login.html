@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Sign in | WorkPulse</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700&display=swap">
+<style>
+:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);color-scheme:light;
+--bg:#eef1f4;--surface:#fff;--ink:#17222e;--muted:#5d6b7a;--line:#d3dae1;--nav:#15202c;--accent:#2f5bea;--accent-ink:#fff;--soft:#e8eefe;--ok:#1f9d6b;--bad:#c93a30}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){color-scheme:dark;--bg:#0f161d;--surface:#18222d;--ink:#e6ecf2;--muted:#97a4b2;--line:#2c3a48;--nav:#0b1118;--accent:#6c8cff;--accent-ink:#0b1118;--soft:#1f2d4d;--bad:#ff7b70}}
+:root[data-theme="dark"]{color-scheme:dark;--bg:#0f161d;--surface:#18222d;--ink:#e6ecf2;--muted:#97a4b2;--line:#2c3a48;--nav:#0b1118;--accent:#6c8cff;--accent-ink:#0b1118;--soft:#1f2d4d;--bad:#ff7b70}
+*,*::before,*::after{box-sizing:inherit}
+html{height:100%}
+body{margin:0;min-height:100%;background:var(--bg);color:var(--ink);font:15px/1.5 Figtree,system-ui,-apple-system,"Segoe UI",sans-serif}
+button,input,select,textarea{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+a{color:var(--accent)}
+.logo{width:44px;height:44px;border-radius:12px;background:var(--accent);display:grid;place-items:center}
+.logo svg{width:26px;height:26px;stroke:var(--accent-ink);fill:none;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
+/* splash */
+#splash{position:fixed;inset:0;background:var(--nav);color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;text-align:center;z-index:20;padding:24px;animation:in 1s ease both;transition:opacity .8s}
+#splash.out{opacity:0;pointer-events:none}
+#splash .logo{width:72px;height:72px;border-radius:20px;margin-bottom:10px}
+#splash .logo svg{width:42px;height:42px;stroke:#fff}
+#splash h1{margin:0;font-size:30px;letter-spacing:-.01em}
+#splash p{margin:0;color:#aab6c3}
+@keyframes in{from{opacity:0}to{opacity:1}}
+/* shell */
+.shell{min-height:100vh;display:grid;grid-template-columns:minmax(320px,.95fr) minmax(380px,1.05fr)}
+.panel{isolation:isolate;position:relative;overflow:hidden;min-height:100vh;padding:clamp(28px,4vw,64px);display:grid;grid-template-rows:auto 1fr auto;gap:36px;color:#dce7ff;background:radial-gradient(ellipse at 12% 84%,#315de04d,transparent 42%),linear-gradient(145deg,#101c38 0%,#111b31 48%,#17294a 100%)}
+.panel::before,.panel::after{position:absolute;z-index:-1;content:"";pointer-events:none}
+.panel::before{width:560px;height:560px;right:-300px;top:-250px;border:1px solid #b5caff1c;border-radius:50%;box-shadow:0 0 0 54px #b5caff0a,0 0 0 110px #b5caff08}
+.panel::after{inset:0;opacity:.22;background-image:linear-gradient(#c6d5ff0a 1px,transparent 1px),linear-gradient(90deg,#c6d5ff0a 1px,transparent 1px);background-size:42px 42px;mask-image:linear-gradient(135deg,#000 0%,transparent 80%)}
+.panel-top{display:flex;align-items:center;justify-content:space-between;gap:16px}
+.panel .brand{display:flex;align-items:center;gap:12px;color:#fff;font-weight:700;font-size:20px;letter-spacing:-.03em}
+.panel .brand .logo{width:42px;height:42px;border:1px solid #ffffff26;background:linear-gradient(145deg,#6286ff,#3d5ce0);box-shadow:0 8px 24px #395ce54d}
+.panel .brand .logo svg{width:23px;height:23px}
+.panel-kicker{display:flex;align-items:center;gap:8px;color:#c5d3f0;font-size:12px;font-weight:600;letter-spacing:.04em}
+.panel-kicker i{width:7px;height:7px;border-radius:50%;background:#75dfb1;box-shadow:0 0 0 4px #75dfb126}
+.panel-content{align-self:center;max-width:560px}
+.panel-eyebrow{display:inline-block;margin-bottom:16px;color:#9eb8ff;font-size:11px;font-weight:700;letter-spacing:.16em}
+.panel h2{max-width:11ch;margin:0 0 16px;color:#fff;font-size:clamp(34px,4vw,52px);line-height:1.06;letter-spacing:-.055em}
+.panel-copy{max-width:39ch;margin:0;color:#b5c3df;font-size:15px;line-height:1.75}
+.workspace-art{position:relative;margin-top:clamp(28px,5vh,48px);padding:18px 20px 16px;border:1px solid #ffffff20;border-radius:18px;background:linear-gradient(120deg,#ffffff12,#ffffff08);box-shadow:0 20px 55px #07112640;backdrop-filter:blur(8px)}
+.workspace-art-head{display:flex;align-items:center;justify-content:space-between;gap:12px;color:#eaf0ff;font-size:12px;font-weight:600}
+.workspace-art-head span:last-child{color:#aabbe0;font-size:11px;font-weight:500}
+.pulse-visual{display:block;width:100%;height:78px;margin:12px 0 10px;overflow:visible}
+.pulse-visual .guide{stroke:#ffffff17;stroke-width:1}
+.pulse-visual .pulse-line{fill:none;stroke:#8daaff;stroke-width:3;stroke-linecap:round;stroke-linejoin:round}
+.pulse-visual .pulse-glow{fill:none;stroke:#7796ff;stroke-width:10;stroke-linecap:round;stroke-linejoin:round;opacity:.12}
+.workspace-tags{display:flex;flex-wrap:wrap;gap:8px}
+.workspace-tags span{padding:5px 9px;border:1px solid #ffffff1a;border-radius:999px;background:#ffffff0b;color:#c8d5f1;font-size:10px;font-weight:500}
+.panel-footer{display:flex;align-items:center;gap:10px;color:#9eacc9;font-size:12px}
+.panel-footer i{width:4px;height:4px;border-radius:50%;background:#647493}
+.main{display:grid;place-items:center;padding:32px 20px}
+.card{width:100%;max-width:420px}
+.card h1{margin:0 0 4px;font-size:26px;letter-spacing:-.01em}
+.sub{margin:0 0 20px;color:var(--muted)}
+label{display:block;font-weight:500;margin-bottom:14px}
+input,select,textarea{display:block;width:100%;margin-top:6px;padding:10px 12px;border:1px solid var(--line);border-radius:8px;background:var(--surface)}
+textarea{resize:vertical;min-height:110px}
+input[readonly]{background:var(--bg);color:var(--muted)}
+.hint{font-weight:400;color:var(--muted);font-size:13px;margin-top:4px}
+.err{color:var(--bad);min-height:20px;margin:-4px 0 8px;font-size:14px}
+.btn{border:1px solid var(--line);background:var(--surface);border-radius:8px;padding:10px 16px;font-weight:600;cursor:pointer}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.btn.wide{width:100%}
+.password-field{display:flex;gap:8px;align-items:center;margin-top:6px}.password-field input{min-width:0;margin-top:0;flex:1}.password-field button{padding:9px 12px;white-space:nowrap}
+.links{display:flex;justify-content:space-between;margin-top:16px;font-size:14px}
+.alt{margin:22px 0 0;padding-top:16px;border-top:1px solid var(--line);color:var(--muted);font-size:14px}
+.notice{background:var(--soft);border-radius:8px;padding:10px 12px;margin-bottom:16px;font-size:14px}
+.choice{display:flex;gap:10px;align-items:flex-start;border:1px solid var(--line);border-radius:10px;padding:12px;margin-bottom:10px;font-weight:500;cursor:pointer}
+.choice input{width:auto;margin:4px 0 0}
+.choice small{display:block;color:var(--muted);font-weight:400}
+.choice.off{opacity:.55;cursor:not-allowed}
+.summary{background:var(--soft);border-radius:10px;padding:14px;margin-bottom:18px}
+.link-btn{display:block;text-align:center;text-decoration:none}
+/* modal + fade */
+.scrim{position:fixed;inset:0;background:#0008;display:grid;place-items:center;padding:20px;z-index:10}
+.scrim[hidden]{display:none}
+.dlg{background:var(--surface);border-radius:14px;padding:24px;max-width:380px;width:100%}
+.dlg h2{margin:0 0 8px;font-size:19px}
+.dlg p{margin:0 0 18px;color:var(--muted)}
+.dlg .row{display:flex;gap:10px;justify-content:flex-end;flex-wrap:wrap}
+#fade{position:fixed;inset:0;background:var(--nav);color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;z-index:30;opacity:0;pointer-events:none;transition:opacity .8s;text-align:center;padding:24px}
+#fade.on{opacity:1;pointer-events:auto}
+#fade .logo svg{stroke:#fff}
+#fade h1{margin:6px 0 0;font-size:28px}
+@media (max-width:1000px){.shell{grid-template-columns:minmax(300px,.9fr) minmax(360px,1.1fr)}.panel{padding:32px}.panel-kicker{font-size:0}.panel-kicker i{width:8px;height:8px}}
+@media (max-height:760px) and (min-width:801px){.panel{gap:20px}.panel h2{font-size:clamp(32px,3.8vw,44px)}.workspace-art{margin-top:24px;padding:14px 18px}.pulse-visual{height:58px}}
+@media (max-width:800px){.shell{grid-template-columns:1fr}.panel{display:none}}
+@media (prefers-reduced-motion:reduce){#splash,#fade{transition:none;animation:none}}
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute"><symbol id="pulse" viewBox="0 0 24 24"><path d="M2 12h4l3-7 4 14 3-7h6"/></symbol></svg>
+
+<div id="splash" role="status">
+  <div class="logo"><svg><use href="#pulse"/></svg></div>
+  <h1>Welcome to WorkPulse</h1>
+  <p>Good day, ready for work?</p>
+</div>
+
+<div class="shell">
+  <aside class="panel">
+    <div class="panel-top">
+      <div class="brand"><div class="logo"><svg><use href="#pulse"/></svg></div>WorkPulse</div>
+      <div class="panel-kicker"><i></i>YOUR TEAM WORKSPACE</div>
+    </div>
+    <div class="panel-content">
+      <span class="panel-eyebrow">WORK, IN SYNC</span>
+      <h2>Make every workday feel more connected.</h2>
+      <p class="panel-copy">Bring attendance, support requests, and team conversations together in one clear workspace.</p>
+      <div class="workspace-art" aria-hidden="true">
+        <div class="workspace-art-head"><span>Team pulse</span><span>One workspace, in sync</span></div>
+        <svg class="pulse-visual" viewBox="0 0 420 78" preserveAspectRatio="none">
+          <path class="guide" d="M0 19.5h420M0 39h420M0 58.5h420"/>
+          <path class="pulse-glow" d="M0 47h70l18-1 16-23 20 42 21-33 18 15h49l16-1 16-22 20 40 20-30 20 13h116"/>
+          <path class="pulse-line" d="M0 47h70l18-1 16-23 20 42 21-33 18 15h49l16-1 16-22 20 40 20-30 20 13h116"/>
+        </svg>
+        <div class="workspace-tags"><span>Attendance</span><span>IT support</span><span>Team updates</span></div>
+      </div>
+    </div>
+    <div class="panel-footer"><i></i><span>Private workspace</span><i></i><span>Access provided by your admin</span></div>
+  </aside>
+  <main class="main"><div class="card" id="view"></div></main>
+</div>
+
+<div class="scrim" id="modal" hidden>
+  <div class="dlg" role="dialog" aria-modal="true" aria-labelledby="mt">
+    <h2 id="mt">We could not find that company</h2>
+    <p id="mp"></p>
+    <div class="row"><button class="btn" id="mTry">Try again</button><button class="btn primary" id="mAdd">Add your company</button></div>
+  </div>
+</div>
+<div id="fade"><div class="logo"><svg><use href="#pulse"/></svg></div><h1>Welcome to IT Workspace</h1></div>
+
+<script src="wp-api.js"></script>
+<script>
+/* WorkPulse sign-in, talking to the API (see backend/BACKEND.md).
+   Everything that matters (passwords, sessions, who may do what) is decided by the server. */
+var $=function(i){return document.getElementById(i)};
+function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
+function domOf(e){var m=String(e).trim().toLowerCase().match(/^[^@\s]+@([^@\s]+\.[^@\s]+)$/);return m?m[1]:null}
+function val(i){return $(i).value.trim()}
+function err(m){var e=$('err');if(e)e.textContent=m}
+function passwordField(id,autocomplete,hint){return '<span class="password-field"><input id="'+id+'" type="password" autocomplete="'+autocomplete+'"><button class="btn" type="button" data-show-password="'+id+'" aria-pressed="false">Show</button></span>'+(hint?'<span class="hint">'+hint+'</span>':'')}
+function availableTimeZones(){
+  var zones=typeof Intl.supportedValuesOf==='function'?Intl.supportedValuesOf('timeZone'):[
+    'Africa/Johannesburg','America/Chicago','America/Denver','America/Los_Angeles','America/New_York',
+    'Asia/Dubai','Asia/Kolkata','Asia/Singapore','Asia/Tokyo','Australia/Melbourne','Australia/Sydney',
+    'Europe/Berlin','Europe/London','Europe/Paris','Pacific/Auckland','UTC'
+  ];
+  var current=Intl.DateTimeFormat().resolvedOptions().timeZone||'UTC';
+  if(zones.indexOf(current)<0)zones.push(current);
+  return zones.sort(function(a,b){return a.localeCompare(b)});
+}
+var BADMAIL='Enter your work email, like name.surname@company.com';
+var params=new URLSearchParams(location.search),INVITE=params.get('invite'),RESET=params.get('reset');
+var me=null,pend={},notice='',inviteInfo=null,inviteError='';
+function goHome(){window.location.assign('home.html')}
+function cleanUrl(){try{history.replaceState(null,'',location.pathname)}catch(e){}}
+
+/* Splash: a 3 second welcome, then it fades away */
+setTimeout(function(){$('splash').classList.add('out')},3000);
+$('splash').onclick=function(){this.classList.add('out')};
+
+/* Popup: company does not exist */
+function noCompany(d){
+  $('mp').textContent='The domain '+d+' is not registered yet. Ask your admin to add your company, then try again.';
+  $('modal').hidden=false;$('mTry').focus();
+}
+$('mTry').onclick=function(){$('modal').hidden=true};
+$('mAdd').onclick=function(){$('modal').hidden=true;go('register')};
+document.addEventListener('keydown',function(e){if(e.key==='Escape')$('modal').hidden=true});
+
+var S={
+login:function(){return (notice?'<div class="notice">'+esc(notice)+'</div>':'')+
+'<h1>Sign in</h1><p class="sub">Enter your username, work email and password.</p>'+
+'<form id="f" novalidate><label>Username<input id="username" autocomplete="username" autocapitalize="none" required></label>'+
+'<label>Work email<input id="email" type="email" autocomplete="email" placeholder="name.surname@company.com" required></label>'+
+'<label>Password'+passwordField('pw','current-password')+'</label><div class="err" id="err" role="alert"></div>'+
+'<button class="btn primary wide">Sign in</button></form>'+
+'<div class="links"><a href="#" data-go="forgot">Forgot password?</a><a href="#" data-go="contact">Need help? Contact your admin</a></div>'+
+'<p class="alt">Setting up WorkPulse for your company? <a href="#" data-go="register">Add your company</a></p>'},
+
+register:function(){return '<h1>Add your company</h1><p class="sub">Step 1 of 2. You will be the admin for this company.</p>'+
+'<form id="f" novalidate><label>Company name<input id="cn" autocomplete="organization"></label>'+
+'<label>Company domain<input id="cd" placeholder="yourcompany.com" autocapitalize="none"><span class="hint" id="dh">Employees sign in with name.surname@yourdomain.com</span></label>'+
+'<label>Your name<input id="an" autocomplete="name"></label>'+
+'<label>Work email<input id="ae" type="email" autocomplete="username"></label>'+
+'<label>Company time zone<select id="tz" autocomplete="off">'+availableTimeZones().map(function(tz){var offset;try{offset=new Intl.DateTimeFormat('en',{timeZone:tz,timeZoneName:'shortOffset'}).format(new Date()).split(' ').pop()}catch(e){offset=''}return '<option value="'+esc(tz)+'"'+(tz===Intl.DateTimeFormat().resolvedOptions().timeZone?' selected':'')+'>'+esc(tz)+(offset?' ('+esc(offset)+')':'')+'</option>'}).join('')+'</select><span class="hint">Used for attendance, working hours, dates and ticket deadlines. Your device time zone is preselected.</span></label>'+
+'<label>Username<input id="reg-username" autocomplete="username" autocapitalize="none" required></label>'+
+'<label>Password'+passwordField('ap','new-password','At least 8 characters')+'</label>'+
+'<div class="err" id="err" role="alert"></div><button class="btn primary wide">Continue</button></form>'+
+'<div class="links"><a href="#" data-go="login">Back to sign in</a></div>'},
+
+role:function(){return '<h1>Your department and role</h1><p class="sub">Step 2 of 2. Your company is ready.</p>'+
+'<form id="f"><label>Department<select id="dept" disabled><option>'+esc(me.user.department.name)+'</option></select><span class="hint">IT is the default department. You can add more in Company Management.</span></label>'+
+'<fieldset style="border:0;padding:0;margin:0 0 14px"><legend style="font-weight:500;margin-bottom:6px">Role</legend>'+
+'<label class="choice"><input type="radio" checked disabled><span>Admin<small>Manages the company, employees and policies.</small></span></label>'+
+'<label class="choice off"><input type="radio" disabled><span>User<small>The first person in a company is the admin, and every company needs at least one admin.</small></span></label></fieldset>'+
+'<button class="btn primary wide">Continue</button></form>'},
+
+final:function(){return '<h1>Welcome, '+esc(me.user.name.split(' ')[0])+'</h1><p class="sub">You are signed in to '+esc(me.company.name)+'.</p>'+
+'<div class="summary"><b>'+esc(me.user.department.name)+' department</b><br>Role: '+esc(me.user.role.charAt(0).toUpperCase()+me.user.role.slice(1))+'</div>'+
+'<button class="btn primary wide" id="enter">Enter '+esc(me.user.department.name)+' Workspace</button>'+
+'<div class="links"><a href="#" data-go="signout">Not you? Sign out</a></div>'},
+
+activate:function(){if(!inviteInfo)return '<h1>Invitation unavailable</h1><p class="sub">'+esc(inviteError||'This invitation link is not valid or has expired. Ask your admin to send a new one.')+'</p><div class="links"><a href="#" data-go="login">Back to sign in</a></div>';
+return '<h1>Authorized user</h1><p class="sub">Your admin added you to '+esc(inviteInfo.company)+'. Confirm your account details and choose a password.</p>'+
+'<div class="summary"><b>'+esc(inviteInfo.employee.name)+'</b><br>Complete the username and work email check to activate your account.</div>'+
+'<form id="f" novalidate><label>Username<input id="activation-username" autocomplete="username" autocapitalize="none" value="'+esc(inviteInfo.employee.username)+'" required></label>'+
+'<label>Work email<input id="activation-email" type="email" autocomplete="email" value="'+esc(inviteInfo.employee.email)+'" required></label>'+
+'<label>New password'+passwordField('p1','new-password','At least 8 characters')+'</label>'+
+'<label>Confirm password'+passwordField('p2','new-password')+'</label><div class="err" id="err" role="alert"></div>'+
+'<button class="btn primary wide">Create password and sign in</button></form><div class="links"><a href="#" data-go="login">Back to sign in</a></div>'},
+
+forgot:function(){return '<h1>Forgot password</h1><p class="sub">Enter your work email and we will send you a link to choose a new password.</p>'+
+'<form id="f" novalidate><label>Work email<input id="email" type="email" autocomplete="username" placeholder="name.surname@company.com"></label><div class="err" id="err" role="alert"></div>'+
+'<button class="btn primary wide">Send reset link</button></form><div class="links"><a href="#" data-go="login">Back to sign in</a></div>'},
+
+forgotSent:function(){return '<h1>Check your email</h1><p class="sub">If there is an account for '+esc(pend.email)+', a link to choose a new password is on its way. It works for one hour.</p>'+
+(pend.devLink?'<div class="notice">Development mode: <a href="'+esc(pend.devLink)+'">open the reset link</a></div>':'')+
+'<button class="btn primary wide" data-go="login">Back to sign in</button>'},
+
+reset:function(){return '<h1>Set a new password</h1><p class="sub">Choose a password you have not used before.</p>'+
+'<form id="f" novalidate><label>New password'+passwordField('p1','new-password','At least 8 characters')+'</label>'+
+'<label>Confirm password'+passwordField('p2','new-password')+'</label><div class="err" id="err" role="alert"></div>'+
+'<button class="btn primary wide">Save new password</button></form>'},
+
+contact:function(){return '<h1>Contact your admin</h1><p class="sub">Forgotten your details, or new here and not on the system yet? Enter your work email and we will find your admin.</p>'+
+'<form id="f" novalidate><label>Work email<input id="email" type="email" placeholder="name.surname@businessname.com"><span class="hint">Work emails look like name.surname@businessname.com. The business name tells us which company you belong to.</span></label>'+
+'<div class="err" id="err" role="alert"></div><button class="btn primary wide">Continue</button></form><div class="links"><a href="#" data-go="login">Back to sign in</a></div>'},
+
+contactForm:function(){return '<h1>Contact admin</h1><p class="sub">Tell your admin what you need. It goes to them as a high-priority ticket.</p>'+
+'<form id="f" novalidate><label>Your email<input value="'+esc(pend.email)+'" readonly></label>'+
+'<label>Problem description<textarea id="pd" placeholder="Tell your admin what you need."></textarea></label>'+
+'<div class="err" id="err" role="alert"></div><button class="btn primary wide">Send to admin</button></form>'},
+
+sent:function(){return '<h1>Sent to your admin</h1><p class="sub">'+(pend.adminName?esc(pend.adminName)+' has':'Your admins have')+' a high-priority ticket from you. They can add you or help you get back in.</p>'+
+'<button class="btn primary wide" data-go="login">Back to sign in</button>'}
+};
+
+/* Runs a form's work while keeping the button from being pressed twice and turning failures into a message. */
+function onSubmit(work){
+  $('f').onsubmit=async function(e){
+    e.preventDefault();var b=this.querySelector('button:not([type="button"])');if(b)b.disabled=true;err('');
+    try{await work()}
+    catch(x){
+      if(x&&x.code==='NO_COMPANY'){var d=domOf(($('email')&&val('email'))||(pend.email||''));if(d)noCompany(d);err(x.message)}
+      else err(x&&x.status?x.message:'We could not reach the server. Check your connection and try again.');
+    }
+    finally{if(b)b.disabled=false}
+  };
+}
+function passwords(){
+  if($('p1').value.length<8){err('Use at least 8 characters.');return null}
+  if($('p1').value!==$('p2').value){err('The two passwords do not match.');return null}
+  return $('p1').value;
+}
+
+var B={
+login:function(){onSubmit(async function(){var em=val('email').toLowerCase(),username=val('username');
+  if(!username)return err('Enter the username your admin gave you.');
+  if(!domOf(em))return err(BADMAIL);
+  me=await api.post('/api/auth/login',{username:username,email:em,password:$('pw').value});go('final')})},
+register:function(){
+  $('cd').oninput=function(){$('dh').textContent='Employees sign in with name.surname@'+(this.value.trim().toLowerCase()||'yourdomain.com')};
+  onSubmit(async function(){
+  var cn=val('cn'),cd=val('cd').toLowerCase(),an=val('an'),ae=val('ae').toLowerCase(),un=val('reg-username'),ap=$('ap').value;
+  if(!cn||!cd||!an||!ae||!un||!ap)return err('Fill in every field to add your company.');
+  if(!/^[a-z0-9-]+(\.[a-z0-9-]+)+$/.test(cd))return err('Enter the domain only, like yourcompany.com.');
+  if(domOf(ae)!==cd)return err('Your work email must end in @'+cd+'.');
+  if(ap.length<8)return err('Use at least 8 characters for your password.');
+  me=await api.post('/api/auth/register',{companyName:cn,domain:cd,adminName:an,username:un,email:ae,password:ap,timezone:$('tz').value});go('role')})},
+role:function(){onSubmit(async function(){go('final')})},
+final:function(){$('enter').onclick=function(){
+  var f=$('fade');f.querySelector('h1').textContent='Welcome to '+me.user.department.name+' Workspace';f.classList.add('on');
+  setTimeout(goHome,3000)}},
+activate:function(){if(!inviteInfo)return;onSubmit(async function(){var p=passwords();if(!p)return;
+  var username=val('activation-username'),email=val('activation-email').toLowerCase();
+  if(!username)return err('Confirm your username.');
+  if(!domOf(email))return err(BADMAIL);
+  me=await api.post('/api/auth/activate',{token:INVITE,username:username,email:email,password:p});cleanUrl();go('final')})},
+forgot:function(){onSubmit(async function(){var em=val('email').toLowerCase();
+  if(!domOf(em))return err(BADMAIL);
+  var r=await api.post('/api/auth/forgot',{email:em});pend={email:em,devLink:r.devLink};go('forgotSent')})},
+reset:function(){onSubmit(async function(){var p=passwords();if(!p)return;
+  await api.post('/api/auth/reset',{token:RESET,password:p});cleanUrl();notice='Password updated. Sign in with your new password.';go('login')})},
+contact:function(){onSubmit(async function(){var em=val('email').toLowerCase(),d=domOf(em);
+  if(!d)return err(BADMAIL);
+  var r=await api.get('/api/auth/company-exists?domain='+encodeURIComponent(d));
+  if(!r.exists)return noCompany(d);
+  pend={email:em};go('contactForm')})},
+contactForm:function(){onSubmit(async function(){var txt=val('pd');
+  if(!txt)return err('Describe the problem so your admin can help.');
+  var r=await api.post('/api/auth/contact-admin',{email:pend.email,message:txt});pend.adminName=r.adminName;go('sent')})}
+};
+
+async function go(name){
+  if(name==='signout'){try{await api.post('/api/auth/logout')}catch(e){}me=null;name='login'}
+  $('view').innerHTML=S[name]();
+  $('view').querySelectorAll('[data-show-password]').forEach(function(button){
+    button.onclick=function(){
+      var input=$(button.dataset.showPassword),show=input.type==='password';
+      input.type=show?'text':'password';
+      button.textContent=show?'Hide':'Show';
+      button.setAttribute('aria-pressed',String(show));
+    };
+  });
+  if(B[name])B[name]();
+  notice='';
+  var f=$('view').querySelector('input:not([readonly]),textarea,button.primary');if(f&&name!=='login'&&name!=='final')f.focus();
+}
+document.addEventListener('click',function(e){var a=e.target.closest('[data-go]');if(a){e.preventDefault();go(a.dataset.go)}});
+
+/* First screen: an invitation/reset link, an existing session, or standard sign-in. */
+(async function(){
+  if(INVITE){
+    try{inviteInfo=await api.get('/api/auth/invite-info?token='+encodeURIComponent(INVITE))}
+    catch(e){inviteError=e&&e.status?e.message:'We could not verify this invitation. Check your connection and try again.'}
+    return go('activate');
+  }
+  if(RESET)return go('reset');
+  try{me=await api.get('/api/auth/me');return go('final')}catch(e){go('login')}
+})();
+</script>
+</body>
+</html>

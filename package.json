@@ -1,0 +1,28 @@
+{
+  "name": "workpulse-api",
+  "version": "1.0.0",
+  "description": "WorkPulse employee tracking API",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "db:init": "node scripts/init-db.js",
+    "test": "node test/smoke.js",
+    "test:pages": "node test/pages.js",
+    "test:ui": "node test/pages-ui.js"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "cookie-parser": "^1.4.6",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "express-rate-limit": "^7.4.0",
+    "helmet": "^7.1.0",
+    "pg": "^8.12.0"
+  },
+  "devDependencies": {
+    "jsdom": "^25.0.1"
+  }
+}

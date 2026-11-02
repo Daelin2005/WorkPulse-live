@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Attendance | WorkPulse</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<style>
+:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);color-scheme:dark;
+--bg:#080f26;--bg2:#0d1a42;--side:#0b1431;--card:#0e1a3e;--card2:#0a1330;--line:#1e2e5e;--ink:#eaf0ff;--muted:#8e9cc7;--brand:#3d6bff;--accent2:#5b86ff;--soft:#172863;--ok:#35d6a0;--warn:#f0b43c;--off:#7683a8;--bad:#ff6b6b}
+:root[data-theme="light"]{color-scheme:light;--bg:#eef2fb;--bg2:#e3eafa;--side:#fff;--card:#fff;--card2:#f3f6fd;--line:#d5deef;--ink:#14203d;--muted:#5a6a8f;--soft:#e4ebff;--ok:#14a374;--warn:#a06c00;--bad:#d13d3d}
+*,*::before,*::after{box-sizing:inherit}
+html{height:100%;scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;height:100%;background:linear-gradient(160deg,var(--bg2),var(--bg) 60%);color:var(--ink);font:14px/1.5 "Plus Jakarta Sans",system-ui,-apple-system,"Segoe UI",sans-serif}
+button,select,input,textarea{font:inherit;color:inherit}button{cursor:pointer}
+:focus-visible{outline:2px solid var(--accent2);outline-offset:2px}
+svg.i{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;flex:none}
+.app{display:flex;height:100%}
+.side{width:244px;background:var(--side);border-right:1px solid var(--line);display:flex;flex-direction:column;padding:18px 12px;flex:none;transition:width .2s;overflow:hidden}
+.side.c{width:70px}
+.brand{display:flex;align-items:center;gap:12px;padding:0 6px 16px;font-size:20px;font-weight:800;white-space:nowrap}
+.logo{width:40px;height:40px;border-radius:12px;background:linear-gradient(135deg,var(--brand),#2447c9);display:grid;place-items:center;box-shadow:0 0 18px #3d6bff66;flex:none;border:0;padding:0}
+.logo svg{width:24px;height:24px;stroke:#fff;fill:none;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+.co{display:flex;gap:10px;align-items:center;padding:12px;border:1px solid var(--line);border-radius:12px;background:var(--card2);margin-bottom:18px;white-space:nowrap}
+.co .ic{width:34px;height:34px;border-radius:9px;background:var(--soft);display:grid;place-items:center;color:var(--accent2);flex:none}
+.co b{display:block;font-size:13px}.co small{color:var(--muted)}
+.grp{font-size:11px;font-weight:700;letter-spacing:.08em;color:var(--muted);padding:0 10px;margin:4px 0 8px;white-space:nowrap}
+.side a{display:flex;align-items:center;gap:12px;padding:11px 12px;border-radius:10px;color:var(--muted);text-decoration:none;margin-bottom:4px;white-space:nowrap}
+.side a:hover{background:var(--card2);color:var(--ink)}
+.side a[aria-current]{background:var(--soft);color:var(--ink);font-weight:600;box-shadow:inset 3px 0 0 var(--accent2)}
+.side .admin-only{display:none}.is-admin .side .admin-only{display:flex}
+.side.c .lbl,.side.c .grp,.side.c .co .t{display:none}.side.c .co{padding:8px;justify-content:center}
+.sp{flex:1}
+.pv{display:flex;gap:8px;align-items:center;font-size:12px;color:var(--muted);padding:8px 10px;white-space:nowrap}
+.pv input{accent-color:var(--brand)}
+.side a.me{border-top:1px solid var(--line);border-radius:0;padding:14px 8px 0;color:var(--ink);gap:10px;margin:0}
+.side a.me:hover{background:none}
+.av{width:36px;height:36px;border-radius:50%;background:var(--soft);display:grid;place-items:center;font-weight:700;font-size:12px;flex:none;overflow:hidden}.av img,.co .ic img{width:100%;height:100%;object-fit:cover;border-radius:inherit}
+.av.s{width:30px;height:30px;font-size:10px}
+.me b{display:block;font-size:13px}.me small{color:var(--muted)}
+.main{flex:1;min-width:0;display:flex;flex-direction:column}
+.top{display:flex;align-items:center;gap:12px;padding:14px 32px;border-bottom:1px solid var(--line)}
+.crumb{display:flex;gap:10px;color:var(--muted)}.crumb b{color:var(--ink)}
+.ib{width:40px;height:40px;border-radius:10px;border:0;background:none;color:var(--muted);display:grid;place-items:center}
+.ib:hover{background:var(--card);color:var(--ink)}
+.btn{border:1px solid var(--line);background:var(--card);border-radius:10px;padding:10px 16px;font-weight:650;line-height:1.25;display:inline-flex;justify-content:center;gap:8px;align-items:center;transition:background .16s,border-color .16s,transform .16s,box-shadow .16s}
+.btn:hover{border-color:var(--accent2);background:var(--soft);transform:translateY(-1px)}.btn:active{transform:translateY(0)}.btn:disabled{opacity:.55;cursor:wait;transform:none}
+.btn.pri{background:linear-gradient(135deg,var(--brand),#2f55d8);border-color:var(--accent2);color:#fff}.btn.pri:hover{filter:brightness(1.08);box-shadow:0 6px 16px color-mix(in srgb,var(--brand) 28%,transparent)}
+.btn.ok{background:var(--ok);border-color:var(--ok);color:#08201a}
+.btn.bad{background:var(--bad);border-color:var(--bad);color:#fff}
+.btn.sm{padding:4px 11px;font-size:12px}
+.subnav{display:flex;gap:6px;padding:10px 32px;border-bottom:1px solid var(--line);overflow-x:auto;background:var(--side)}
+.subnav button{padding:6px 14px;border-radius:999px;color:var(--muted);background:none;white-space:nowrap;font-weight:600;border:1px solid transparent}
+.subnav button:hover{color:var(--ink)}
+.subnav button[aria-selected="true"]{background:var(--soft);color:var(--ink);border-color:var(--accent2)}
+.subnav .admin-only{display:none}.is-admin .subnav .admin-only{display:inline-block}
+.subnav em{font-style:normal;background:var(--warn);color:#201500;border-radius:999px;padding:0 7px;font-size:11px;margin-left:6px}
+.page{flex:1;overflow:auto;padding:28px 32px 60px}
+.wrap{max-width:1800px;width:100%;margin-inline:auto;display:grid;gap:18px}
+[hidden]{display:none!important}
+.card{background:linear-gradient(180deg,var(--card),var(--card2));border:1px solid var(--line);border-radius:16px;padding:20px;min-width:0}
+.card h2{margin:0 0 4px;font-size:16px}
+.cd{color:var(--muted);margin:0 0 14px}
+.shift{display:flex;gap:20px;justify-content:space-between;align-items:center;flex-wrap:wrap}
+.st{display:flex;gap:8px;align-items:center;font-weight:700;font-size:15px}
+.dot{width:11px;height:11px;border-radius:50%;background:var(--c,var(--off));flex:none}
+.big{font-size:42px;font-weight:800;letter-spacing:-.02em;font-variant-numeric:tabular-nums;line-height:1.1}
+.muted{color:var(--muted)}.sm{font-size:12px}
+.acts{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:10px;overflow:hidden}
+.seg button{border:0;background:none;padding:8px 13px;font-weight:600;color:var(--muted)}
+.seg button[aria-pressed="true"]{background:var(--soft);color:var(--ink)}
+.kpi{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.k{border:1px solid var(--line);border-radius:14px;padding:16px;background:linear-gradient(180deg,var(--card),var(--card2))}
+.k b{display:block;font-size:26px;font-weight:800;letter-spacing:-.01em;line-height:1.2}
+.k span{color:var(--muted);font-size:13px;display:block}
+@media (max-width:760px){.kpi{grid-template-columns:1fr 1fr}.top,.subnav{padding-left:14px;padding-right:14px}.page{padding:18px 14px 50px}.crumb .hide{display:none}}
+.in{display:block;width:100%;margin-top:6px;padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:var(--card2)}
+.in[readonly]{color:var(--muted);border-style:dashed;background:transparent}
+textarea.in{min-height:84px;resize:vertical}
+.bar{display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end;margin-bottom:14px}
+.bar label{font-weight:600;font-size:12px;color:var(--muted)}.bar .in{margin-top:4px;width:auto}
+.sc{overflow-x:auto}
+table{width:100%;border-collapse:collapse;min-width:720px}
+th{text-align:left;font-size:12px;color:var(--muted);padding:10px 12px;background:var(--card2);white-space:nowrap}
+td{padding:11px 12px;border-top:1px solid var(--line);vertical-align:top;white-space:nowrap}
+td.w{white-space:normal;min-width:160px}
+td small{display:block;color:var(--muted)}
+.tag{display:inline-flex;gap:6px;align-items:center;border-radius:999px;padding:2px 11px;font-size:12px;font-weight:700;border:1px solid currentColor;white-space:nowrap}
+.tag::before{content:"";width:7px;height:7px;border-radius:50%;background:currentColor}
+.Pending,.Late,.Break{color:var(--warn)}.Approved,.On,.In{color:var(--ok)}.Rejected{color:var(--bad)}.Absent{color:var(--off)}
+.empty{text-align:center;color:var(--muted);padding:26px 10px}
+.live{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:14px}
+.ppl{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:10px}
+.pp{display:flex;gap:10px;align-items:center;border:1px solid var(--line);border-radius:12px;padding:10px;background:var(--card2)}
+.pp .x{flex:1;min-width:0}.pp small{display:block;color:var(--muted)}
+.req{border:1px solid var(--line);border-radius:14px;padding:16px;background:var(--card2);margin-bottom:14px}
+.req .hd{display:flex;gap:12px;align-items:center;flex-wrap:wrap}.req .hd .sp{flex:1}
+.req p{margin:8px 0;color:var(--muted)}
+.ra{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}
+.scrim{position:fixed;inset:0;background:#0009;display:grid;place-items:center;padding:16px;z-index:10;overflow:auto}
+.dlg{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:22px;width:100%;max-width:440px}
+.dlg h2{margin:0 0 4px;font-size:18px}.dlg label{display:block;font-weight:600;margin-bottom:12px}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:0 14px}
+.row{display:flex;gap:10px;justify-content:flex-end;margin-top:8px}
+.err{color:var(--bad);min-height:18px;font-size:13px}
+.toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:10px;z-index:12;font-weight:600;max-width:calc(100% - 28px)}
+@media (prefers-reduced-motion:reduce){.side{transition:none}}
+:root{--brand:#3d6bff;--on:#fff}
+:root[data-theme='light']{--brand:#2f5bea;--accent:#2f5bea;--accent2:#2f5bea}
+:root[data-theme='ocean']{--bg:#06161f;--bg2:#0b2d3b;--side:#07202b;--card:#0b2733;--card2:#08202a;--line:#17414f;--ink:#e4f6fb;--muted:#84aab8;--brand:#1fc2cf;--accent:#1fc2cf;--accent2:#4fe0ea;--soft:#0f3a47;--on:#02242b}
+:root[data-theme='forest']{--bg:#0a1510;--bg2:#11261b;--side:#0c1b14;--card:#12261c;--card2:#0d1c15;--line:#25402f;--ink:#e8f5ec;--muted:#8fae9a;--brand:#2fb36a;--accent:#2fb36a;--accent2:#5fd48f;--soft:#173826;--on:#03210f}
+:root[data-theme='sunset']{--bg:#1a0e17;--bg2:#2c1424;--side:#1a0c15;--card:#2a1522;--card2:#20101b;--line:#4a2a3d;--ink:#fdeef0;--muted:#c39aa9;--brand:#e8553f;--accent:#e8553f;--accent2:#ff8f7a;--soft:#44202f}
+:root[data-theme='violet']{--bg:#100b24;--bg2:#1d1442;--side:#0f0a22;--card:#1b1440;--card2:#140f33;--line:#34296a;--ink:#efeaff;--muted:#a99ed6;--brand:#7c4dff;--accent:#7c4dff;--accent2:#a78bfa;--soft:#2a1f5e}
+:root[data-theme='graphite']{--bg:#0f1012;--bg2:#1b1d21;--side:#131417;--card:#1c1e22;--card2:#16181b;--line:#2d3036;--ink:#ececef;--muted:#9a9ea8;--brand:#e0a030;--accent:#e0a030;--accent2:#f2bf5e;--soft:#2d2a20;--on:#1a1200}
+:root[data-theme='sand']{color-scheme:light;--bg:#f6f1e9;--bg2:#efe6d8;--side:#fffaf2;--card:#fffdf8;--card2:#f7f0e4;--line:#e2d6c2;--ink:#2a2118;--muted:#7a6a55;--brand:#b5521f;--accent:#b5521f;--accent2:#b5521f;--soft:#f3e2d0;--ok:#2f8f5b;--warn:#a8690a;--bad:#c23b3b;--hi:#c25a10;--pr:#7a4fd6}
+.logo{background:linear-gradient(135deg,var(--brand),color-mix(in srgb,var(--brand) 62%,#000))!important;box-shadow:0 0 18px color-mix(in srgb,var(--brand) 40%,transparent)!important}
+.logo svg{stroke:var(--on)!important}
+.btn.pri{background:linear-gradient(135deg,var(--brand),color-mix(in srgb,var(--brand) 72%,#000))!important;border-color:var(--accent2)!important;color:var(--on)!important}
+.thp{position:fixed;top:calc(env(safe-area-inset-top,0px) + 60px);right:16px;width:min(300px,calc(100% - 24px));background:var(--card);border:1px solid var(--line);border-radius:14px;padding:10px;box-shadow:0 18px 40px #0009;z-index:30}
+.thp[hidden]{display:none}.thp h3{margin:2px 6px 8px;font-size:13px}
+.thg{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.tho{display:flex;gap:8px;align-items:center;border:1px solid var(--line);border-radius:10px;padding:8px;background:var(--card2);text-align:left;font-weight:600}
+.tho[aria-pressed='true']{border-color:var(--accent2);background:var(--soft)}
+.tho i{width:22px;height:22px;border-radius:50%;flex:none;border:2px solid var(--line)}
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute"><defs>
+<symbol id="pulse" viewBox="0 0 24 24"><path d="M2 12h4l3-7 4 14 3-7h6"/></symbol>
+<symbol id="dash" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="9" rx="1"/><rect x="14" y="3" width="7" height="5" rx="1"/><rect x="14" y="12" width="7" height="9" rx="1"/><rect x="3" y="16" width="7" height="5" rx="1"/></symbol>
+<symbol id="clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></symbol>
+<symbol id="cal" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M8 3v4M16 3v4M3 11h18"/></symbol>
+<symbol id="tix" viewBox="0 0 24 24"><path d="M3 9a2 2 0 0 0 0 6v3h18v-3a2 2 0 0 1 0-6V6H3z"/></symbol>
+<symbol id="box" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="12" rx="2"/><path d="M8 20h8M12 16v4"/></symbol>
+<symbol id="shield" viewBox="0 0 24 24"><path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/></symbol>
+<symbol id="help" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M9.5 9.5a2.5 2.5 0 1 1 3.5 2.3c-.7.4-1 .9-1 1.7M12 17h.01"/></symbol>
+<symbol id="out" viewBox="0 0 24 24"><path d="M14 4h5v16h-5M10 8l-4 4 4 4M6 12h10"/></symbol>
+<symbol id="bld" viewBox="0 0 24 24"><rect x="5" y="3" width="14" height="18" rx="1"/><path d="M9 7h2M13 7h2M9 11h2M13 11h2M10 21v-4h4v4"/></symbol>
+</defs></svg>
+
+<div class="app" id="app">
+  <aside class="side" id="side">
+    <div class="brand"><button class="logo" id="collapse" aria-label="Collapse or expand menu"><svg><use href="#pulse"/></svg></button><span class="lbl">WorkPulse</span></div>
+    <div class="co"><span class="ic"><svg class="i"><use href="#bld"/></svg></span><span class="ct"><b>Your company</b><small></small></span></div>
+    <div class="grp">WORKSPACE</div>
+    <a href="home.html"><svg class="i"><use href="#dash"/></svg><span class="lbl">Dashboard</span></a>
+    <a href="attendance.html" aria-current="page"><svg class="i"><use href="#clock"/></svg><span class="lbl">Attendance</span></a>
+    <a href="leave.html"><svg class="i"><use href="#cal"/></svg><span class="lbl" id="leaveLbl">Leave Requests</span></a>
+    <a href="tickets.html"><svg class="i"><use href="#tix"/></svg><span class="lbl">Tickets</span></a>
+    <a href="assets.html"><svg class="i"><use href="#box"/></svg><span class="lbl">Log Asset Equipment</span></a>
+    <a href="company.html" class="admin-only"><svg class="i"><use href="#shield"/></svg><span class="lbl">Company Management</span></a>
+    <div class="sp"></div>
+    <a href="profile.html" class="me"><span class="av">?</span><span class="lbl"><b>Your name</b><small id="srole"></small></span></a>
+  </aside>
+
+  <div class="main">
+    <header class="top">
+      <div class="crumb"><span class="hide">Your company</span><span class="hide">›</span><b>Attendance</b></div>
+      <div class="sp"></div>
+      <button class="ib" id="signout" aria-label="Sign out" title="Sign out"><svg class="i"><use href="#out"/></svg></button>
+    </header>
+    <div class="subnav" role="tablist" aria-label="Attendance sections">
+      <button role="tab" data-t="mine" aria-selected="true">My attendance</button>
+      <button role="tab" data-t="co" aria-selected="false" class="admin-only">Company attendance</button>
+      <button role="tab" data-t="cr" aria-selected="false" class="admin-only">Corrections<em id="pc">0</em></button>
+    </div>
+
+    <main class="page"><div class="wrap">
+      <div id="p-mine" class="wrap">
+        <section class="card shift" aria-label="Shift controls">
+          <div>
+            <div class="st" id="stl"><i class="dot"></i><span id="stt">Not clocked in</span></div>
+            <div class="muted sm" id="std">Clock in to start your shift.</div>
+            <div class="big" id="tm">00:00:00</div><div class="muted sm">worked today, breaks not counted</div>
+          </div>
+          <div>
+            <div class="acts"><button class="btn pri" id="ci">Clock In</button><button class="btn" id="bk" hidden>Start break</button></div>
+            <div class="muted sm" style="margin:12px 0 6px">Working from</div>
+            <div class="seg" id="loc" role="group" aria-label="Work location"><button data-l="Office" aria-pressed="true">Office</button><button data-l="Remote" aria-pressed="false">Remote</button><button data-l="On site" aria-pressed="false">On site</button></div>
+          </div>
+        </section>
+        <section class="kpi" id="kpi" aria-label="Time summaries"></section>
+        <section class="card">
+          <h2>My timesheet</h2><p class="cd">Only you can see this. Regular hours are up to 8 hours a day, and anything above that is overtime. Late means clocking in after 08:05.</p>
+          <div class="sc"><table><thead><tr><th>Date</th><th>Clock in</th><th>Clock out</th><th>Breaks</th><th>Total</th><th>Regular</th><th>Overtime</th><th>Arrival</th><th></th></tr></thead><tbody id="ts"></tbody></table></div>
+          <div style="margin-top:12px"><button class="btn sm" id="more">Show all</button></div>
+        </section>
+        <section class="card">
+          <h2>My correction requests</h2><p class="cd">See whether your admin has approved or rejected each one.</p>
+          <div class="sc"><table style="min-width:620px"><thead><tr><th>Date</th><th>Recorded</th><th>You asked for</th><th>Reason</th><th>Status</th></tr></thead><tbody id="mc"></tbody></table></div>
+          <div class="empty" id="mce">No correction requests yet. Use “Request correction” on a timesheet row.</div>
+        </section>
+      </div>
+
+      <div id="p-co" class="wrap" hidden>
+        <section class="card">
+          <h2>Live now</h2><p class="cd">Who is clocked in, on break or absent right now.</p>
+          <div class="live" id="lv"></div><div class="ppl" id="pp"></div>
+        </section>
+        <section class="card">
+          <h2>Employee timesheets</h2><p class="cd">Search any employee’s attendance history.</p>
+          <div class="bar">
+            <label>Employee<input class="in" id="hq" placeholder="Search by name" style="min-width:200px"></label>
+            <label>From<input class="in" type="date" id="hf"></label><label>To<input class="in" type="date" id="ht"></label>
+            <button class="btn" id="pdf" style="margin-left:auto">Download PDF</button>
+          </div>
+          <div class="sc"><table><thead><tr><th>Employee</th><th>Date</th><th>Clock in</th><th>Clock out</th><th>Breaks</th><th>Total</th><th>Overtime</th><th>Arrival</th></tr></thead><tbody id="hs"></tbody></table></div>
+          <div class="empty" id="hn" hidden>No records match.</div><p class="muted sm" id="hc"></p>
+        </section>
+      </div>
+
+      <section id="p-cr" class="card" hidden>
+        <h2>Correction requests</h2><p class="cd">Review each request. Approving updates the employee’s record.</p><div id="cq"></div>
+      </section>
+    </div></main>
+  </div>
+</div>
+
+<div class="scrim" id="m" hidden><form class="dlg" id="cf" role="dialog" aria-modal="true" aria-labelledby="mt" novalidate>
+  <h2 id="mt">Request a correction</h2><p class="cd" id="mi"></p>
+  <div class="g2"><label>Correct clock in<input class="in" type="time" id="ni"></label><label>Correct clock out<input class="in" type="time" id="no"></label></div>
+  <label>Reason<textarea class="in" id="nr" placeholder="Explain what went wrong. Your admin decides whether to change it."></textarea></label>
+  <div class="err" id="ne" role="alert"></div>
+  <div class="row"><button type="button" class="btn" id="nx">Cancel</button><button class="btn pri">Send to admin</button></div>
+</form></div>
+<div class="toast" id="toast" hidden></div>
+
+<script src="wp-api.js"></script>
+<script>
+/* WorkPulse attendance, talking to the API (see backend/BACKEND.md).
+   The server keeps the clock, works out hours and overtime in the company's time zone, and decides who can see whose timesheet. */
+var $=function(i){return document.getElementById(i)};
+function pad(n){return String(n).padStart(2,'0')}
+function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
+function cap(s){return s.charAt(0).toUpperCase()+s.slice(1)}
+function toast(m){var t=$('toast');t.textContent=m;t.hidden=false;clearTimeout(toast.h);toast.h=setTimeout(function(){t.hidden=true},3000)}
+function problem(e){return e&&e.status?e.message:'We could not reach the server. Check your connection and try again.'}
+window.addEventListener('wp:signed-out',function(){location.replace('Login.html')});
+
+var CTX=null,TZ='UTC',PRIV=false,ADMIN=false;
+var STATE={state:'out',rec:null},BASE={w:0,at:0,run:false},LOC='Office',SHEET=[],MYC=[],HIST=[],showAll=false;
+var tfmt=null;
+function fmtT(iso){return iso?tfmt.format(new Date(iso)):'—'}
+function fd(s){return new Date(s+'T12:00:00').toLocaleDateString('en-GB',{weekday:'short',day:'numeric',month:'short'})}
+function hh(m){m=Math.round(m);return Math.floor(m/60)+'h '+pad(m%60)+'m'}
+function arrival(late){return '<span class="tag '+(late?'Late':'On')+'">'+(late?'Late':'On time')+'</span>'}
+
+/* sidebar, sign out and who is signed in */
+var side=$('side');if(window.innerWidth<800)side.classList.add('c');
+$('collapse').onclick=function(){side.classList.toggle('c')};
+$('signout').onclick=async function(){try{await api.post('/api/auth/logout')}catch(e){}location.replace('Login.html')};
+function identity(){
+  var u=CTX.user,c=CTX.company;
+  var cn=document.querySelector('.co .ct');cn.querySelector('b').textContent=c.name;cn.querySelector('small').textContent=c.domain;
+  document.querySelector('.crumb .hide').textContent=c.name;
+  if(c.logo){var logo=document.createElement('img');logo.src=c.logo;logo.alt='';document.querySelector('.co .ic').replaceChildren(logo)}
+  var me=document.querySelector('a.me'),avatar=me.querySelector('.av');
+  if(u.avatar){var photo=document.createElement('img');photo.src=u.avatar;photo.alt='';avatar.replaceChildren(photo)}
+  else avatar.textContent=u.name.split(' ').map(function(p){return p[0]}).join('').slice(0,2).toUpperCase();
+  me.querySelector('.lbl b').textContent=u.name;$('srole').textContent=cap(u.role);
+  document.querySelectorAll('.side a').forEach(function(a){if(/Company Management/.test(a.textContent)){a.classList.remove('admin-only');a.style.display=u.role==='employee'?'none':''}});
+  $('app').classList.toggle('is-admin',PRIV);                       // admins and managers get the company tabs
+  $('pdf').style.display=ADMIN?'':'none';                            // only admins download reports
+}
+
+/* tabs */
+var tabs=[].slice.call(document.querySelectorAll('[role=tab]'));
+function tab(id){tabs.forEach(function(b){var on=b.dataset.t===id;b.setAttribute('aria-selected',on);$('p-'+b.dataset.t).hidden=!on})}
+tabs.forEach(function(b){b.onclick=function(){tab(b.dataset.t)}});
+
+/* shift controls */
+function drawShift(){
+  var s=STATE.state,x=STATE.rec;
+  $('stl').querySelector('.dot').style.setProperty('--c',s==='in'?'var(--ok)':s==='break'?'var(--warn)':'var(--off)');
+  $('stt').textContent=s==='in'?'Clocked in':s==='break'?'On break':(x&&x.clockOut?'Clocked out':'Not clocked in');
+  $('std').textContent=s!=='out'?'Since '+fmtT(x.clockIn)+' · '+x.location:(x&&x.clockOut?'Finished at '+fmtT(x.clockOut)+'.':'Clock in to start your shift.');
+  $('ci').textContent=s==='out'?'Clock In':'Clock Out';$('ci').className='btn '+(s==='out'?'pri':'bad');
+  $('bk').hidden=s==='out';$('bk').textContent=s==='break'?'End break':'Start break';
+  $('loc').querySelectorAll('button').forEach(function(b){b.setAttribute('aria-pressed',b.dataset.l===LOC);b.disabled=s!=='out';b.title=s!=='out'?'You choose where you are working when you clock in':''});
+  tick();
+}
+function tick(){var sec=Math.floor(BASE.w*60+(BASE.run?(Date.now()-BASE.at)/1000:0));$('tm').textContent=pad(Math.floor(sec/3600))+':'+pad(Math.floor(sec%3600/60))+':'+pad(sec%60)}
+setInterval(tick,1000);
+async function loadState(){
+  var s=await api.get('/api/attendance/state');STATE={state:s.state,rec:s.today};
+  if(s.today){LOC=s.today.location;BASE={w:s.today.workedMinutes,at:Date.now(),run:s.state==='in'}}else BASE={w:0,at:Date.now(),run:false};
+  drawShift();
+}
+async function act(btn,fn,msg){btn.disabled=true;try{await fn();if(msg)toast(msg);await refresh()}catch(e){toast(problem(e))}finally{btn.disabled=false}}
+$('ci').onclick=function(){var out=STATE.state==='out';act(this,function(){return out?api.post('/api/attendance/clock-in',{location:LOC}):api.post('/api/attendance/clock-out')},out?'Clocked in at '+pad(new Date().getHours())+':'+pad(new Date().getMinutes()):'Clocked out')};
+$('bk').onclick=function(){var start=STATE.state==='in';act(this,function(){return api.post('/api/attendance/break/'+(start?'start':'end'))},start?'Break started':'Break ended')};
+$('loc').onclick=function(e){var b=e.target.closest('[data-l]');if(!b||b.disabled)return;LOC=b.dataset.l;drawShift()};
+
+/* summaries */
+async function loadSummary(){
+  var s=await api.get('/api/attendance/summary');
+  var T=[['Hours today',hh(s.todayMinutes),'Worked so far'],['This week',hh(s.weekMinutes),'Since Monday'],['This month',hh(s.monthMinutes),'Month to date'],
+   ['Overtime',hh(s.overtimeMinutes),'Hours above 8 a day, this month'],['Breaks',hh(s.breakMinutes),'Total break time this month'],
+   ['Punctuality',s.punctualityPercent==null?'—':s.punctualityPercent+'%',s.lateThisMonth+' late clock-in'+(s.lateThisMonth===1?'':'s')+' this month']];
+  $('kpi').innerHTML=T.map(function(t){return '<div class="k"><span>'+t[0]+'</span><b>'+t[1]+'</b><span>'+t[2]+'</span></div>'}).join('');
+}
+
+/* my timesheet and my correction requests */
+async function loadSheet(){var r=await Promise.all([api.get('/api/attendance?limit=62'),api.get('/api/attendance/corrections')]);SHEET=r[0];MYC=r[1];drawSheet();drawMyC()}
+function drawSheet(){
+  var shown=showAll?SHEET:SHEET.slice(0,10),today=STATE.rec&&STATE.rec.date;
+  $('ts').innerHTML=SHEET.length?shown.map(function(r){
+    var open=!r.clockOut,pend=MYC.some(function(k){return k.recordId===r.id&&k.status==='pending'});
+    return '<tr><td>'+fd(r.date)+(r.date===today?' (today)':'')+'</td><td>'+fmtT(r.clockIn)+'</td><td>'+(open?'In progress':fmtT(r.clockOut))+'</td><td>'+hh(r.breakMinutes)+'</td><td>'+hh(r.workedMinutes)+'</td><td>'+hh(r.workedMinutes-r.overtimeMinutes)+'</td><td>'+hh(r.overtimeMinutes)+'</td><td>'+arrival(r.late)+'</td><td>'+(open?'':pend?'<span class="tag Pending">Correction pending</span>':'<button class="btn sm" data-c="'+esc(r.id)+'">Request correction</button>')+'</td></tr>'}).join('')
+   :'<tr><td colspan="9" class="empty">No attendance recorded yet. Clock in to start your first day.</td></tr>';
+  $('more').hidden=SHEET.length<=10;$('more').textContent=showAll?'Show fewer':'Show all '+SHEET.length+' days';
+}
+$('more').onclick=function(){showAll=!showAll;drawSheet()};
+$('ts').onclick=function(e){var b=e.target.closest('[data-c]');if(b)openC(b.dataset.c)};
+function drawMyC(){
+  $('mce').hidden=MYC.length>0;
+  $('mc').innerHTML=MYC.map(function(k){return '<tr><td>'+fd(k.date)+'</td><td>'+fmtT(k.recordedIn)+' to '+fmtT(k.recordedOut)+'</td><td>'+fmtT(k.requestedIn||k.recordedIn)+' to '+fmtT(k.requestedOut||k.recordedOut)+'</td><td class="w">'+esc(k.reason)+'</td><td class="w"><span class="tag '+cap(k.status)+'">'+cap(k.status)+'</span>'+(k.decisionNote?'<small>'+esc(k.decidedBy||'Admin')+': '+esc(k.decisionNote)+'</small>':'')+'</td></tr>'}).join('');
+}
+
+/* ask for a correction */
+var corrRec=null;
+function openC(id){
+  corrRec=SHEET.filter(function(r){return r.id===id})[0];if(!corrRec)return;
+  $('mi').textContent=fd(corrRec.date)+'. Recorded: in at '+fmtT(corrRec.clockIn)+', out at '+fmtT(corrRec.clockOut)+'.';
+  $('ni').value=fmtT(corrRec.clockIn);$('no').value=corrRec.clockOut?fmtT(corrRec.clockOut):'';$('nr').value='';$('ne').textContent='';$('m').hidden=false;$('ni').focus();
+}
+$('nx').onclick=function(){$('m').hidden=true};
+document.addEventListener('keydown',function(e){if(e.key==='Escape')$('m').hidden=true});
+$('cf').onsubmit=async function(e){e.preventDefault();
+  var tin=$('ni').value,tout=$('no').value,why=$('nr').value.trim(),oin=fmtT(corrRec.clockIn),oout=corrRec.clockOut?fmtT(corrRec.clockOut):'';
+  var body={recordId:corrRec.id,reason:why};if(tin&&tin!==oin)body.requestedIn=tin;if(tout&&tout!==oout)body.requestedOut=tout;
+  if(!body.requestedIn&&!body.requestedOut)return $('ne').textContent='Change at least one of the times. These are the same as the recorded ones.';
+  if((body.requestedIn||oin)&&(body.requestedOut||oout)&&(body.requestedOut||oout)<=(body.requestedIn||oin))return $('ne').textContent='Clock out must be after clock in.';
+  if(!why)return $('ne').textContent='Explain what went wrong so your admin can decide.';
+  var btn=this.querySelector('button:not([type="button"])');btn.disabled=true;
+  try{await api.post('/api/attendance/corrections',body);$('m').hidden=true;toast('Request sent to your admin');await loadSheet();if(PRIV)loadReview().catch(function(){})}
+  catch(x){$('ne').textContent=problem(x)}finally{btn.disabled=false}};
+
+/* company attendance (admins and managers) */
+async function loadLive(){
+  var rows=await api.get('/api/attendance/presence'),o={in:0,break:0,absent:0};
+  rows.forEach(function(r){o[r.state]++});
+  $('lv').innerHTML=[['Clocked in','in'],['On break','break'],['Absent','absent']].map(function(a){return '<div class="k"><span>'+a[0]+'</span><b>'+o[a[1]]+'</b></div>'}).join('');
+  $('pp').innerHTML=rows.map(function(r){var d=r.state==='in'?'Since '+fmtT(r.since)+' · '+esc(r.location):r.state==='break'?'On a break':r.onLeave?'Absent · on leave':'Absent · not clocked in';
+    return '<div class="pp"><span class="av s">'+esc(r.name.split(' ').map(function(w){return w[0]}).join('').slice(0,2))+'</span><div class="x"><b>'+esc(r.name)+'</b><small>'+esc(r.department)+' · '+d+'</small></div><span class="tag '+(r.state==='in'?'In':r.state==='break'?'Break':'Absent')+'">'+(r.state==='in'?'Clocked in':r.state==='break'?'On break':'Absent')+'</span></div>'}).join('');
+}
+function today(){var p=new Intl.DateTimeFormat('en-CA',{timeZone:TZ}).format(new Date());return p}
+async function loadHist(){var f=$('hf').value,t=$('ht').value,q='/api/attendance?employeeId=all&limit=500'+(f?'&from='+f:'')+(t?'&to='+t:'');HIST=await api.get(q);drawHist()}
+function histRows(){var q=$('hq').value.trim().toLowerCase();return HIST.filter(function(r){return !q||r.employee.toLowerCase().indexOf(q)>-1})}
+function drawHist(){var L=histRows();$('hn').hidden=L.length>0;$('hc').textContent=L.length>40?'Showing the latest 40 of '+L.length+' records. The PDF includes all of them.':L.length+' records';
+  $('hs').innerHTML=L.slice(0,40).map(function(r){return '<tr><td>'+esc(r.employee)+'</td><td>'+fd(r.date)+'</td><td>'+fmtT(r.clockIn)+'</td><td>'+(r.clockOut?fmtT(r.clockOut):'In progress')+'</td><td>'+hh(r.breakMinutes)+'</td><td>'+hh(r.workedMinutes)+'</td><td>'+hh(r.overtimeMinutes)+'</td><td>'+arrival(r.late)+'</td></tr>'}).join('')}
+var hdeb;$('hq').oninput=drawHist;
+['hf','ht'].forEach(function(i){$(i).onchange=function(){clearTimeout(hdeb);hdeb=setTimeout(function(){loadHist().catch(function(e){toast(problem(e))})},200)}});
+$('pdf').onclick=function(){if(!ADMIN)return;var J=window.jspdf&&window.jspdf.jsPDF;if(!J)return toast('The PDF tools did not load. Check your internet connection and try again.');
+  var L=histRows(),doc=new J({unit:'mm',format:'a4'}),y=18,X=[14,52,76,96,116,138,160,182];
+  var head=function(){doc.setFont(undefined,'bold');doc.setFontSize(9);['Employee','Date','In','Out','Breaks','Total','Overtime','Arrival'].forEach(function(h,i){doc.text(h,X[i],y)});doc.setFont(undefined,'normal');y+=6};
+  doc.setFontSize(15);doc.text(CTX.company.name+' - attendance report',14,y);y+=6;doc.setFontSize(9);doc.text($('hf').value+' to '+$('ht').value+($('hq').value.trim()?' - search: '+$('hq').value.trim():'')+' - generated '+new Date().toLocaleString('en-GB'),14,y);y+=9;head();
+  L.forEach(function(r){if(y>280){doc.addPage();y=18;head()}
+    [r.employee,r.date,fmtT(r.clockIn),r.clockOut?fmtT(r.clockOut):'-',hh(r.breakMinutes),hh(r.workedMinutes),hh(r.overtimeMinutes),r.late?'Late':'On time'].forEach(function(v,i){doc.text(String(v),X[i],y)});y+=6});
+  doc.save('attendance-report.pdf');toast('PDF saved')};
+
+/* corrections waiting for a decision (admins and managers) */
+async function loadReview(){
+  var q=await api.get('/api/attendance/corrections?scope=all&status=pending'),b=$('cq');b.innerHTML='';$('pc').textContent=q.length;$('pc').hidden=!q.length;
+  if(!q.length)b.innerHTML='<div class="empty">No pending corrections. You are all caught up.</div>';
+  q.forEach(function(k){var d=document.createElement('div');d.className='req';
+    d.innerHTML='<div class="hd"><span class="av s">'+esc(k.employee.split(' ').map(function(w){return w[0]}).join('').slice(0,2))+'</span><b>'+esc(k.employee)+'</b><span class="sp"></span><span class="tag Pending">Pending</span></div><p>'+fd(k.date)+'. Recorded '+fmtT(k.recordedIn)+' to '+fmtT(k.recordedOut)+'. Requested '+fmtT(k.requestedIn||k.recordedIn)+' to '+fmtT(k.requestedOut||k.recordedOut)+'.</p><p>Reason: '+esc(k.reason)+'</p>'+
+    '<div class="ra" data-a><button class="btn ok" data-d="ok">Approve</button><button class="btn bad" data-d="no">Reject</button></div><div data-r hidden><textarea class="in" placeholder="Explain why you are rejecting this correction (optional)" aria-label="Reason for rejecting"></textarea><div class="ra"><button class="btn bad" data-d="go">Confirm rejection</button><button class="btn" data-d="bk">Back</button></div></div>';
+    d.onclick=async function(e){var x=e.target.dataset&&e.target.dataset.d;if(!x)return;
+      if(x==='no'){d.querySelector('[data-a]').hidden=true;d.querySelector('[data-r]').hidden=false;d.querySelector('textarea').focus();return}
+      if(x==='bk'){d.querySelector('[data-a]').hidden=false;d.querySelector('[data-r]').hidden=true;return}
+      e.target.disabled=true;
+      try{await api.post('/api/attendance/corrections/'+k.id+'/decision',{decision:x==='ok'?'approve':'reject',note:x==='go'?d.querySelector('textarea').value.trim():''});toast(x==='ok'?'Correction approved and the record updated':'Correction rejected');await refresh()}
+      catch(err){toast(problem(err));e.target.disabled=false}};
+    b.appendChild(d)})}
+
+/* load everything, and refresh the numbers every minute */
+async function refresh(){
+  var jobs=[loadState(),loadSummary(),loadSheet()];if(PRIV)jobs.push(loadLive(),loadHist(),loadReview());
+  var rs=await Promise.allSettled(jobs);rs.forEach(function(r){if(r.status==='rejected'&&r.reason&&r.reason.status!==401)toast(problem(r.reason))});
+  drawSheet();
+}
+(async function(){
+  try{CTX=await api.get('/api/bootstrap')}
+  catch(e){if(e.status===401){location.replace('Login.html');return}document.querySelector('.page').innerHTML='<div class="card" style="margin:40px 0"><b>We could not load attendance.</b><p class="muted">'+esc(problem(e))+'</p></div>';return}
+  TZ=CTX.company.timezone||'UTC';tfmt=new Intl.DateTimeFormat('en-GB',{timeZone:TZ,hour:'2-digit',minute:'2-digit',hourCycle:'h23'});
+  PRIV=CTX.user.role!=='employee';ADMIN=CTX.user.role==='admin';identity();
+  var t=today();$('ht').value=t;$('hf').value=t.slice(0,7)+'-01';
+  await refresh();
+  setInterval(function(){loadState().catch(function(){});loadSummary().catch(function(){})},60000);
+})();
+
+</script>
+<script src="/wp-theme.js"></script><script>WPTheme.init();</script><script src="/wp-notifications.js"></script>
+</body>
+</html>
