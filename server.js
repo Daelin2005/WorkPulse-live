@@ -12,7 +12,7 @@ const dbReady = require('./scripts/migrate')();
 if (!process.env.DATABASE_URL) { console.error('DATABASE_URL is missing. Copy .env.example to .env and fill it in.'); process.exit(1); }
 
 const app = express();
-const ORIGIN = process.env.APP_ORIGIN || '';
+const ORIGIN = process.env.APP_ORIGIN || process.env.RENDER_EXTERNAL_URL || '';
 if (process.env.NODE_ENV === 'production' && !ORIGIN) console.warn('APP_ORIGIN is not set. Emailed invitation and reset links need your site address, for example https://app.yourcompany.com');
 app.set('trust proxy', 1);                       // behind a proxy or load balancer, so req.ip and secure cookies work
 app.disable('x-powered-by');
