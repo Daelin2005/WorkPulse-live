@@ -10,6 +10,47 @@
   var timezone = 'UTC';
   var isOpen = false;
   var knownIds = null;
+  var audioContext = null;
+  var soundReady = false;
+
+  function primeSound() {
+    var AudioContext = window.AudioContext || window.webkitAudioContext;
+    if (!AudioContext) return;
+    try {
+      if (!audioContext) audioContext = new AudioContext();
+      if (audioContext.state === 'running') {
+        soundReady = true;
+        return;
+      }
+      audioContext.resume().then(function () {
+        soundReady = true;
+      }).catch(function (error) {
+        console.warn('Could not enable WorkPulse notification sounds.', error);
+      });
+    } catch (error) {
+      console.warn('Could not enable WorkPulse notification sounds.', error);
+    }
+  }
+
+  function playSound() {
+    if (!soundReady || !audioContext || audioContext.state !== 'running') return;
+    var now = audioContext.currentTime;
+    var oscillator = audioContext.createOscillator();
+    var gain = audioContext.createGain();
+    oscillator.type = 'sine';
+    oscillator.frequency.setValueAtTime(880, now);
+    oscillator.frequency.setValueAtTime(1174.66, now + 0.12);
+    gain.gain.setValueAtTime(0.0001, now);
+    gain.gain.exponentialRampToValueAtTime(0.12, now + 0.02);
+    gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.28);
+    oscillator.connect(gain);
+    gain.connect(audioContext.destination);
+    oscillator.start(now);
+    oscillator.stop(now + 0.29);
+  }
+
+  document.addEventListener('pointerdown', primeSound, { once: true });
+  document.addEventListener('keydown', primeSound, { once: true });
 
   if (!bell) {
     var signOut = document.getElementById('signout');
@@ -82,9 +123,12 @@
         ' data-notification="' + escape(item.id) + '">' + escape(item.body) +
         '<small>' + escape(time(item.createdAt)) + '</small></a>';
     }).join('') : '<div class="wp-notification">You are all caught up.</div>';
-    if (knownIds !== null && typeof window.wpToast === 'function') {
+    if (knownIds !== null) {
       var incoming = data.items.find(function (item) { return !item.readAt && !knownIds.has(item.id); });
-      if (incoming) window.wpToast(incoming.body);
+      if (incoming) {
+        if (typeof window.wpToast === 'function') window.wpToast(incoming.body);
+        playSound();
+      }
     }
     knownIds = new Set(data.items.map(function (item) { return item.id; }));
   }
@@ -100,6 +144,7 @@
   }
 
   bell.addEventListener('click', async function () {
+    primeSound();
     isOpen = panel.hidden;
     panel.hidden = !isOpen;
     bell.setAttribute('aria-expanded', String(isOpen));
