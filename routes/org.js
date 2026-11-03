@@ -117,6 +117,18 @@ router.get('/employees', wrap(async (req, res) => {
   res.json(priv ? rows : rows.map(r => ({ id: r.id, name: r.name, jobTitle: r.jobTitle, email: r.email, phone: r.phone, role: r.role, department: r.department, departmentId: r.departmentId, status: r.status })));
 }));
 
+router.get('/employees/avatars', wrap(async (req, res) => {
+  const rawIds = typeof req.query.ids === 'string' && req.query.ids ? req.query.ids.split(',') : [];
+  if (rawIds.length > 50) throw E.bad('Request photos for up to 50 coworkers at a time.');
+  const ids = [...new Set(rawIds.map(id => v.uuid(id, 'Employee')))];
+  if (!ids.length) return res.json([]);
+  const rows = (await db.query(
+    "SELECT id, avatar FROM employees WHERE company_id = $1 AND status = 'active' AND id = ANY($2::uuid[])",
+    [req.user.companyId, ids]
+  )).rows;
+  res.json(rows);
+}));
+
 async function otherAdmins(c, companyId, exceptId) {
   return (await c.query("SELECT count(*)::int AS n FROM employees WHERE company_id = $1 AND role = 'admin' AND status = 'active' AND id <> $2", [companyId, exceptId])).rows[0].n;
 }

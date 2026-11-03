@@ -4,6 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Tickets | WorkPulse</title>
+<link rel="icon" type="image/svg+xml" href="/workpulse-icon.svg">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap">
 <style>
 :root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);color-scheme:dark;
@@ -250,6 +251,7 @@ var $=function(i){return document.getElementById(i)};
 function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
 function cap(s){return s.charAt(0).toUpperCase()+s.slice(1)}
 function toast(m){var t=$('toast');t.textContent=m;t.hidden=false;clearTimeout(toast.h);toast.h=setTimeout(function(){t.hidden=true},3000)}
+window.wpToast=toast;
 function problem(e){return e&&e.status?e.message:'We could not reach the server. Check your connection and try again.'}
 var fT=function(d){return new Date(d).toLocaleString('en-GB',{timeZone:CTX&&CTX.company.timezone||'UTC',day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'})},fD=function(d){return new Date(d).toLocaleDateString('en-GB',{timeZone:CTX&&CTX.company.timezone||'UTC',day:'numeric',month:'short'})};
 var ini=function(n){return n.split(' ').map(function(p){return p[0]}).join('').slice(0,2).toUpperCase()};
@@ -316,6 +318,7 @@ async function openDet(id){
   v.innerHTML='<div><button class="btn sm" id="back">← All tickets</button></div>'+
   '<section class="card"><div class="dh"><div><span class="idc">Ticket #'+t.number+'</span><h1 id="dt" tabindex="-1">'+esc(t.subject)+'</h1></div><div class="actions">'+
   (canEditTicket(t)?'<button class="btn" id="edit-ticket" type="button"><svg class="i" aria-hidden="true"><use href="#edit"/></svg>Edit ticket</button>':'')+
+  (CTX.user.role==='admin'?'<button class="btn danger" id="delete-ticket" type="button">Delete ticket</button>':'')+
   '<label>Status<select class="in" id="ds">'+ST.map(function(s){return '<option'+(s===t.status?' selected':'')+'>'+s+'</option>'}).join('')+'</select></label></div>'+
   '<div class="meta"><span><span class="av s">'+esc(ini(t.submittedBy))+'</span><b>'+esc(t.submittedBy)+'</b></span><span>Submitted '+fT(t.createdAt)+'</span><span class="cat">'+esc(t.category)+'</span><span class="tag '+t.urgency+'">'+t.urgency+' urgency</span></div>'+
   '<div class="meta"><span>Assigned to</span><div class="chips">'+(t.assignees.length?t.assignees.map(function(n){return '<span class="chip"><span class="av">'+esc(ini(n.name))+'</span>'+esc(n.name)+'</span>'}).join(''):'<span>'+(k.length?'Split across '+k.length+' sub-tickets':'Unassigned (IT queue)')+'</span>')+'</div></div>'+
@@ -329,6 +332,18 @@ async function openDet(id){
   $('v-list').hidden=true;v.hidden=false;$('crumb').textContent='Ticket #'+t.number;$('page').scrollTop=0;$('dt').focus();
   $('back').onclick=openList;if(p)$('up').onclick=function(){openDet(p.id)};
   if(canEditTicket(t))$('edit-ticket').onclick=function(){openEdit(t)};
+  var deleteButton=$('delete-ticket');
+  if(deleteButton)deleteButton.onclick=async function(){
+    var warning=t.subTicketCount?' This also deletes its '+t.subTicketCount+' sub-ticket(s).':'';
+    if(!window.confirm('Delete ticket #'+t.number+'? This cannot be undone.'+warning))return;
+    deleteButton.disabled=true;
+    try{
+      await api.del('/api/tickets/'+id);
+      toast('Ticket #'+t.number+' deleted.');
+      window.dispatchEvent(new Event('wp:notification-refresh'));
+      openList();
+    }catch(error){toast(problem(error));deleteButton.disabled=false}
+  };
   v.querySelectorAll('[data-o]').forEach(function(b){b.onclick=function(){openDet(b.dataset.o)}});
   $('ds').onchange=async function(){this.disabled=true;try{await api.patch('/api/tickets/'+id,{status:this.value});toast('Status changed');window.dispatchEvent(new Event('wp:notification-refresh'))}catch(e){toast(problem(e))}openDet(id)};
   $('rf').onsubmit=async function(e){e.preventDefault();var x=$('rt').value.trim();if(!x)return $('re').textContent='Write a message before sending.';

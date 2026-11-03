@@ -4,6 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Attendance | WorkPulse</title>
+<link rel="icon" type="image/svg+xml" href="/workpulse-icon.svg">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <style>
@@ -236,6 +237,7 @@ function pad(n){return String(n).padStart(2,'0')}
 function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
 function cap(s){return s.charAt(0).toUpperCase()+s.slice(1)}
 function toast(m){var t=$('toast');t.textContent=m;t.hidden=false;clearTimeout(toast.h);toast.h=setTimeout(function(){t.hidden=true},3000)}
+window.wpToast=toast;
 function problem(e){return e&&e.status?e.message:'We could not reach the server. Check your connection and try again.'}
 window.addEventListener('wp:signed-out',function(){location.replace('Login.html')});
 

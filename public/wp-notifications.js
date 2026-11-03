@@ -9,7 +9,7 @@
   var badge = document.getElementById('nc');
   var timezone = 'UTC';
   var isOpen = false;
-  var lastUnread = null;
+  var knownIds = null;
 
   if (!bell) {
     var signOut = document.getElementById('signout');
@@ -82,10 +82,11 @@
         ' data-notification="' + escape(item.id) + '">' + escape(item.body) +
         '<small>' + escape(time(item.createdAt)) + '</small></a>';
     }).join('') : '<div class="wp-notification">You are all caught up.</div>';
-    if (lastUnread !== null && data.unread > lastUnread && typeof window.wpToast === 'function') {
-      window.wpToast('You have a new notification.');
+    if (knownIds !== null && typeof window.wpToast === 'function') {
+      var incoming = data.items.find(function (item) { return !item.readAt && !knownIds.has(item.id); });
+      if (incoming) window.wpToast(incoming.body);
     }
-    lastUnread = data.unread;
+    knownIds = new Set(data.items.map(function (item) { return item.id; }));
   }
 
   async function refresh() {
@@ -111,7 +112,6 @@
         panel.querySelectorAll('.wp-notification.unread').forEach(function (item) {
           item.classList.remove('unread');
         });
-        lastUnread = 0;
       } catch (error) {
         list.textContent = error && error.message ? error.message : 'Notifications could not be marked as read.';
       }

@@ -109,6 +109,7 @@ router.post('/', wrap(async (req, res) => {
 // Change status, urgency, assignees, subject or description.
 router.patch('/:id', wrap(async (req, res) => {
   const id = v.uuid(req.params.id, 'Ticket'), u = req.user, b = req.body || {};
+  const updates = [];
   await db.tx(async c => {
     const t = await loadVisible(c, u, id);
     const assigned = t.assignees.some(a => a.id === u.id);
@@ -123,7 +124,7 @@ router.patch('/:id', wrap(async (req, res) => {
           [status, id, t.submittedById !== u.id]);
         await addEvent(c, id, u.companyId, u, 'status', `changed the status from ${t.status} to ${status}`);
         await recomputeParent(c, u.companyId, t.parentId);
-        if (t.submittedById !== u.id) await notify(c, u.companyId, t.submittedById, `Ticket #${t.number} is now ${status}: ${t.subject}`, `/tickets.html?ticket=${id}`);
+        updates.push(`status changed to ${status}`);
         if (DONE.includes(status)) await audit(c, u, 'Tickets', `Ticket ${status.toLowerCase()}`, `#${t.number} ${t.subject}`);
       }
     }
@@ -138,10 +139,14 @@ router.patch('/:id', wrap(async (req, res) => {
       if (urgency !== t.urgency) await addEvent(c, id, u.companyId, u, 'system', `changed the urgency from ${t.urgency} to ${urgency}`);
       if (category !== t.category) await addEvent(c, id, u.companyId, u, 'system', `changed the category from ${t.category} to ${category}`);
       if (subject !== t.subject || description !== t.description) await addEvent(c, id, u.companyId, u, 'system', 'edited the ticket details');
+      if (urgency !== t.urgency || category !== t.category || subject !== t.subject || description !== t.description) {
+        updates.push('details were updated');
+      }
     }
     if (b.assigneeIds !== undefined) {
       if (!(isPriv(u) || assigned || u.handlesTickets)) throw E.forbidden('Only the people working on this ticket can change who it is assigned to.');
       const want = v.uuidList(b.assigneeIds, 'Assigned to'), people = await checkAssignees(c, u.companyId, want), have = t.assignees.map(a => a.id);
+      const changed = want.length !== have.length || want.some(employeeId => !have.includes(employeeId));
       if (assigned && !isPriv(u) && t.submittedById !== u.id && !want.includes(u.id)) {
         throw E.forbidden('Ask an admin or manager to transfer a ticket away from your account.');
       }
@@ -154,9 +159,34 @@ router.patch('/:id', wrap(async (req, res) => {
         await c.query('DELETE FROM ticket_assignees WHERE ticket_id = $1 AND employee_id = $2', [id, a.id]);
         await addEvent(c, id, u.companyId, u, 'assignment', `removed ${a.name} from this ticket`);
       }
+      if (changed) updates.push('assignees were updated');
+    }
+    if (updates.length) {
+      const participants = new Set([t.submittedById, ...t.assignees.map(a => a.id)]);
+      for (const employeeId of participants) {
+        if (employeeId !== u.id) {
+          await notify(c, u.companyId, employeeId,
+            `Ticket #${t.number} ${updates.join(' and ')}: ${t.subject}`, `/tickets.html?ticket=${id}`);
+        }
+      }
     }
   });
   res.json(await loadVisible(db, u, id));
+}));
+
+router.delete('/:id', wrap(async (req, res) => {
+  if (req.user.role !== 'admin') throw E.forbidden('Only a company admin can delete tickets.');
+  const id = v.uuid(req.params.id, 'Ticket'), u = req.user;
+  await db.tx(async c => {
+    const ticket = (await c.query(
+      'SELECT number, subject FROM tickets WHERE id = $1 AND company_id = $2 FOR UPDATE',
+      [id, u.companyId]
+    )).rows[0];
+    if (!ticket) throw E.notFound('Ticket not found.');
+    await audit(c, u, 'Tickets', 'Deleted ticket', `#${ticket.number} ${ticket.subject}`);
+    await c.query('DELETE FROM tickets WHERE id = $1 AND company_id = $2', [id, u.companyId]);
+  });
+  res.json({ ok: true });
 }));
 
 router.post('/:id/comments', wrap(async (req, res) => {

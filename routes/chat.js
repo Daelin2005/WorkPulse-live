@@ -1,6 +1,6 @@
 const router = require('express').Router();
 const db = require('../lib/db');
-const { E, wrap, v, audit } = require('../lib/util');
+const { E, wrap, v, audit, notify } = require('../lib/util');
 
 async function member(c, companyId, groupId, employeeId) {
   const result = await c.query(
@@ -86,6 +86,9 @@ router.post('/groups', wrap(async (req, res) => {
       [req.user.companyId, name, req.user.id]
     )).rows[0];
     await addMembers(c, req.user.companyId, row.id, req.user.id, [...invited, req.user.id]);
+    for (const employeeId of invited) {
+      await notify(c, req.user.companyId, employeeId, `${req.user.name} added you to the discussion group "${name}"`, '/home.html#team-card');
+    }
     await audit(c, req.user, 'Chat', 'Created discussion group', name);
     return row;
   });
@@ -115,12 +118,20 @@ router.post('/groups/:id/messages', wrap(async (req, res) => {
   const id = v.uuid(req.params.id, 'Group');
   const body = v.str(req.body && req.body.body, 'Message', { max: 4000 });
   const message = await db.tx(async c => {
-    await member(c, req.user.companyId, id, req.user.id);
-    return (await c.query(
+    const group = await member(c, req.user.companyId, id, req.user.id);
+    const result = await c.query(
       `INSERT INTO chat_messages (company_id, group_id, sender_id, body)
        VALUES ($1,$2,$3,$4) RETURNING id, sender_id AS "senderId", body, created_at AS "createdAt"`,
       [req.user.companyId, id, req.user.id, body]
-    )).rows[0];
+    );
+    const members = (await c.query(
+      'SELECT employee_id FROM chat_group_members WHERE group_id = $1 AND company_id = $2 AND removed_at IS NULL AND employee_id <> $3',
+      [id, req.user.companyId, req.user.id]
+    )).rows;
+    for (const recipient of members) {
+      await notify(c, req.user.companyId, recipient.employee_id, `${req.user.name} sent a message in "${group.name}"`, '/home.html#team-card');
+    }
+    return result.rows[0];
   });
   res.status(201).json({ ...message, senderName: req.user.name });
 }));

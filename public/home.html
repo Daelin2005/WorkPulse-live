@@ -4,6 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Dashboard | WorkPulse</title>
+<link rel="icon" type="image/svg+xml" href="/workpulse-icon.svg">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap">
 <style>
 :root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);color-scheme:dark;
@@ -23,8 +24,8 @@ svg.i{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:1.8;stro
 .brand{display:flex;align-items:center;gap:12px;padding:0 6px 16px;font-size:20px;font-weight:800;white-space:nowrap}
 .logo{width:40px;height:40px;border-radius:12px;background:linear-gradient(135deg,#3d6bff,#2447c9);display:grid;place-items:center;box-shadow:0 0 18px #3d6bff66;flex:none;color:#fff;border:0;padding:0}
 .logo svg{width:24px;height:24px;stroke:#fff;fill:none;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
-.co{display:flex;gap:10px;align-items:center;padding:12px;border:1px solid var(--line);border-radius:12px;background:var(--card2);margin-bottom:18px;white-space:nowrap}
-.co .ic{width:34px;height:34px;border-radius:9px;background:var(--soft);display:grid;place-items:center;color:var(--accent2);flex:none}
+.co{display:flex;gap:12px;align-items:center;padding:14px;border:1px solid var(--line);border-radius:14px;background:var(--card2);margin-bottom:18px;white-space:nowrap;min-height:74px}
+.co .ic{width:46px;height:46px;padding:3px;border:2px solid var(--line);border-radius:13px;background:var(--card);box-shadow:0 0 0 3px color-mix(in srgb,var(--accent2) 12%,transparent);display:grid;place-items:center;color:var(--accent2);flex:none;overflow:hidden}
 .co b{display:block;font-size:13px}.co small{color:var(--muted)}
 .grp{font-size:11px;font-weight:700;letter-spacing:.08em;color:var(--muted);padding:0 10px;margin:4px 0 8px;white-space:nowrap}
 .side a{display:flex;align-items:center;gap:12px;padding:11px 12px;border-radius:10px;color:var(--muted);text-decoration:none;margin-bottom:4px;white-space:nowrap;position:relative}
@@ -101,13 +102,17 @@ td select{border:1px solid var(--line);background:var(--card2);border-radius:6px
 .foot{display:flex;justify-content:space-between;padding:12px 14px;border-top:1px solid var(--line);color:var(--muted);font-size:12px}
 .foot a{color:var(--accent2);text-decoration:none;font-weight:600}
 .cnt{display:flex;gap:12px;flex-wrap:wrap;font-size:12px;color:var(--muted);margin-bottom:10px}.cnt span{display:flex;gap:6px;align-items:center}
-.team{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr));gap:2px 14px}
-.team>li{min-width:0}.team>li>.person-select{display:flex;gap:10px;align-items:center;width:100%;border:0;background:none;text-align:left;padding:8px 6px;border-radius:10px}
-.team>li>.person-select:hover,.team>li>.person-select[aria-expanded="true"]{background:var(--card2)}
-.team .av{width:32px;height:32px;font-size:11px}
-.team .av::after{content:"";position:absolute;right:-1px;bottom:-1px;width:10px;height:10px;border-radius:50%;border:2px solid var(--card);background:var(--c)}
+.team{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr));gap:5px 14px}
+.team>li{min-width:0}.team-person-row{display:flex;gap:10px;align-items:center;width:100%;padding:7px 8px;border-radius:12px}
+.team-person-row:hover,.team>li:has(.person-select[aria-expanded="true"]) .team-person-row{background:var(--card2)}
+.team-avatar-open{flex:none;padding:0;border:0;border-radius:50%;background:none;line-height:0;cursor:zoom-in}
+.team-person-row .person-select{display:flex;gap:10px;align-items:center;flex:1;min-width:0;border:0;background:none;text-align:left;padding:0;color:var(--ink)}
+.team-person-row .person-select:focus-visible,.team-avatar-open:focus-visible{outline:2px solid var(--accent2);outline-offset:3px}
+.team .av{width:46px;height:46px;font-size:14px;overflow:visible}
+.team .av img{width:100%;height:100%;border-radius:50%;object-fit:cover}
+.team .av::after{content:"";position:absolute;right:0;bottom:0;width:14px;height:14px;border-radius:50%;border:3px solid var(--card);background:var(--c);z-index:1}
 .team small{display:block;color:var(--muted)}.team .w{flex:1;min-width:0}
-.person-actions{margin:0 0 8px 48px;padding:9px 10px;border:1px solid var(--line);border-radius:10px;background:var(--card2)}
+.person-actions{margin:0 0 8px 72px;padding:9px 10px;border:1px solid var(--line);border-radius:10px;background:var(--card2)}
 .person-actions[hidden]{display:none}.person-actions .work{margin:0 0 8px;font-size:11px;color:var(--muted)}
 .person-action-buttons{display:flex;gap:7px;flex-wrap:wrap}.person-action-buttons button{padding:6px 9px;border:1px solid var(--line);border-radius:8px;background:var(--card);color:var(--ink);font-size:11px;font-weight:650}
 .person-action-buttons button:hover{border-color:var(--accent2);background:var(--soft)}
@@ -120,9 +125,10 @@ td select{border:1px solid var(--line);background:var(--card2);border-radius:6px
 .team-profile-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:16px}.team-profile-head h2{margin:0 0 3px}.team-profile-head p{margin:0}.team-profile-details{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
 .team-profile-detail{min-width:0;padding:11px;border:1px solid var(--line);border-radius:10px;background:var(--card2)}.team-profile-detail small{display:block;color:var(--muted);font-size:11px;margin-bottom:3px}.team-profile-detail b,.team-profile-detail a{display:block;overflow-wrap:anywhere;font-size:13px}
 .team-profile-details+.row{margin-top:18px}.c4#team-card .team-profile-details{grid-template-columns:1fr}
+.team-photo-dialog{width:min(440px,100%);text-align:center}.team-photo-frame{width:min(300px,75vw);height:min(300px,75vw);margin:0 auto 16px;display:grid;place-items:center;overflow:hidden;border:3px solid var(--line);border-radius:50%;background:var(--card2);box-shadow:0 0 0 5px color-mix(in srgb,var(--accent2) 14%,transparent)}.team-photo-frame img{width:100%;height:100%;object-fit:cover}.team-photo-fallback{font-size:76px;font-weight:800;color:var(--accent2)}.team-photo-caption{margin:0 0 16px;color:var(--muted)}
 .c4#team-card{padding:16px}.c4#team-card .team-head{align-items:flex-start;gap:10px}.c4#team-card .team-nav button{padding:6px 9px;font-size:12px}
 .c4#team-card .team-people-bar{align-items:flex-start;flex-direction:column;gap:4px}.c4#team-card .cnt{gap:7px;font-size:10px}
-.c4#team-card .team{grid-template-columns:1fr;gap:1px}.c4#team-card .person-info{font-size:11px}.c4#team-card .person-meta{font-size:10px}
+.c4#team-card .team{grid-template-columns:1fr;gap:4px}.c4#team-card .team-person-row{gap:8px;padding:7px 5px}.c4#team-card .team .av{width:42px;height:42px}.c4#team-card .person-info{font-size:11px}.c4#team-card .person-meta{font-size:10px}.c4#team-card .person-actions{margin-left:60px}
 .c4#team-card .group-layout{grid-template-columns:1fr;gap:10px;min-height:0}.c4#team-card .group-sidebar{min-height:0}.c4#team-card .group-list{max-height:140px}
 .c4#team-card .group-room{min-height:280px;padding:10px}.c4#team-card .group-messages{max-height:200px}
 .group-layout{display:grid;grid-template-columns:minmax(220px,280px) minmax(0,1fr);gap:14px;min-height:360px}.group-sidebar{display:flex;flex-direction:column;min-width:0;border:1px solid var(--line);border-radius:12px;background:var(--card2);padding:12px}.group-sidebar h3{margin:0 0 10px;font-size:14px}.group-list{display:grid;gap:6px;max-height:300px;overflow:auto;align-content:start}.group-choice{display:grid;width:100%;text-align:left;padding:10px;border:1px solid transparent;border-radius:9px;background:transparent;color:var(--ink)}.group-choice:hover,.group-choice[aria-current=true]{border-color:var(--line);background:var(--soft)}.group-choice small{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--muted)}
@@ -312,6 +318,11 @@ td select{border:1px solid var(--line);background:var(--card2);border-radius:6px
   <div class="team-profile-details" id="team-profile-details"></div>
   <div class="row"><button class="btn pri" type="button" id="team-profile-chat">Chat</button><button class="btn" type="button" id="team-profile-done">Close</button></div>
 </section></div>
+<div class="scrim" id="team-photo-viewer" hidden><section class="dlg team-photo-dialog" role="dialog" aria-modal="true" aria-labelledby="team-photo-name">
+  <div class="team-profile-head"><div><h2 id="team-photo-name">Coworker photo</h2><p class="team-photo-caption" id="team-photo-caption"></p></div><button class="icon-btn" type="button" id="close-team-photo" aria-label="Close photo">×</button></div>
+  <div class="team-photo-frame"><img id="team-photo-image" alt="" hidden><span class="team-photo-fallback" id="team-photo-fallback" hidden></span></div>
+  <p class="team-photo-caption" id="team-photo-message" role="status"></p>
+</section></div>
 <div class="scrim" id="ticket-edit-modal" hidden><form class="dlg" id="ticket-edit-form" role="dialog" aria-modal="true" aria-labelledby="ticket-edit-title" novalidate>
   <h2 id="ticket-edit-title">Edit ticket</h2>
   <label>Subject<input id="ticket-edit-subject" maxlength="150" required></label>
@@ -335,6 +346,7 @@ function hm(d){return new Intl.DateTimeFormat('en-GB',{timeZone:TZ,hour:'2-digit
 function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
 function cap(s){return s.charAt(0).toUpperCase()+s.slice(1)}
 function toast(m){var t=$('toast');t.textContent=m;t.hidden=false;clearTimeout(toast.h);toast.h=setTimeout(function(){t.hidden=true},2800)}
+window.wpToast=toast;
 function problem(e){return e&&e.status?e.message:'We could not reach the server. Check your connection and try again.'}
 window.addEventListener('wp:signed-out',function(){location.replace('Login.html')});
 
@@ -465,6 +477,7 @@ $('ticket-edit-form').onsubmit=async function(event){
 };
 document.addEventListener('keydown',function(event){
   if(event.key!=='Escape')return;
+  if(!$('team-photo-viewer').hidden)closeCoworkerPhoto();
   if(!$('team-profile-modal').hidden)closeCoworkerProfile();
   if(!$('ticket-edit-modal').hidden){$('ticket-edit-modal').hidden=true;editingTicket=null}
 });
@@ -486,7 +499,7 @@ $('tf').onsubmit=async function(e){e.preventDefault();var v=$('tTitle').value.tr
 
 /* IT team: everyone in a ticket-handling department, with today's clock-ins and approved leave */
 var col={online:'var(--ok)',away:'var(--warn)',offline:'var(--off)',leave:'var(--bad)'},lab={online:'online',away:'away',offline:'offline',leave:'on leave'};
-var presenceRows=[],showAllPeople=false,teamTab='people',dashboardGroups=[],activeDashboardGroup=null,groupPoll=null,directChat=false,profilePerson=null;
+var presenceRows=[],showAllPeople=false,teamTab='people',dashboardGroups=[],activeDashboardGroup=null,groupPoll=null,directChat=false,profilePerson=null,teamPhotoCache=Object.create(null),teamPhotoTrigger=null,teamPhotoLoad=0;
 function presenceFor(person){
   var row=presenceRows.find(function(item){return item.id===person.id});
   var status=!row?'offline':row.onLeave?'leave':row.state==='in'?'online':row.state==='break'?'away':'offline';
@@ -505,12 +518,56 @@ function drawPeople(){
   $('view-all-people').textContent=showAllPeople?'Show IT team only':'View all people →';
   $('team').innerHTML=people.length?people.map(function(person){
     var p=presenceFor(person),initials=person.name.split(/\s+/).map(function(part){return part[0]||''}).join('').slice(0,2).toUpperCase();
-    return '<li><button class="person-select" type="button" data-person-id="'+esc(person.id)+'" aria-expanded="false"><span class="av" style="--c:'+col[p.status]+'">'+esc(initials)+'</span>' +
-      '<span class="w"><b>'+esc(person.name)+'</b><small class="person-info">'+esc(person.jobTitle||cap(person.role))+' · '+esc(person.department)+'</small></span>' +
-      '<span class="person-meta">'+esc(cap(lab[p.status]))+'</span></button><div class="person-actions" data-person-id="'+esc(person.id)+'" hidden><div class="work">'+esc(p.detail)+'</div><div class="person-action-buttons">'+
+    return '<li><div class="team-person-row"><button class="team-avatar-open" type="button" data-person-photo="'+esc(person.id)+'" aria-label="View photo for '+esc(person.name)+'"><span class="av" data-person-avatar="'+esc(person.id)+'" style="--c:'+col[p.status]+'">'+esc(initials)+'</span></button>' +
+      '<button class="person-select" type="button" data-person-id="'+esc(person.id)+'" aria-expanded="false"><span class="w"><b>'+esc(person.name)+'</b><small class="person-info">'+esc(person.jobTitle||cap(person.role))+' · '+esc(person.department)+'</small></span>' +
+      '<span class="person-meta">'+esc(cap(lab[p.status]))+'</span></button></div><div class="person-actions" data-person-id="'+esc(person.id)+'" hidden><div class="work">'+esc(p.detail)+'</div><div class="person-action-buttons">'+
       (person.id!==CTX.user.id?'<button type="button" data-person-action="chat" data-person-id="'+esc(person.id)+'">Chat</button>':'')+
       '<button type="button" data-person-action="profile" data-person-id="'+esc(person.id)+'">View profile</button></div></div></li>';
   }).join(''):'<li class="muted sm" style="padding:10px 6px">No people to show.</li>';
+  applyTeamAvatars();
+  loadTeamAvatars(people).catch(function(error){toast(problem(error))});
+}
+function applyTeamAvatars(){
+  document.querySelectorAll('[data-person-avatar]').forEach(function(avatar){
+    var photo=teamPhotoCache[avatar.dataset.personAvatar];
+    if(!photo||avatar.querySelector('img'))return;
+    var image=document.createElement('img');image.src=photo;image.alt='';avatar.replaceChildren(image);
+  });
+}
+async function loadTeamAvatars(people){
+  var ids=people.map(function(person){return person.id}).filter(function(id){return !Object.prototype.hasOwnProperty.call(teamPhotoCache,id)});
+  if(!ids.length)return;
+  for(var start=0;start<ids.length;start+=50){
+    var batch=ids.slice(start,start+50),query=new URLSearchParams({ids:batch.join(',')});
+    var rows=await api.get('/api/employees/avatars?'+query.toString());
+    batch.forEach(function(id){teamPhotoCache[id]=null});
+    rows.forEach(function(row){teamPhotoCache[row.id]=row.avatar||null});
+  }
+  applyTeamAvatars();
+}
+function initialsFor(name){return name.split(/\s+/).map(function(part){return part[0]||''}).join('').slice(0,2).toUpperCase()}
+async function showCoworkerPhoto(person){
+  var image=$('team-photo-image'),fallback=$('team-photo-fallback'),message=$('team-photo-message');
+  var request=++teamPhotoLoad;
+  teamPhotoTrigger=document.activeElement;
+  $('team-photo-name').textContent=person.name;
+  $('team-photo-caption').textContent=[person.jobTitle||cap(person.role),person.department].filter(Boolean).join(' · ');
+  image.hidden=true;fallback.hidden=true;message.textContent='Loading photo…';
+  $('team-photo-viewer').hidden=false;
+  $('close-team-photo').focus();
+  try{
+    if(!Object.prototype.hasOwnProperty.call(teamPhotoCache,person.id))await loadTeamAvatars([person]);
+    if(request!==teamPhotoLoad)return;
+    var photo=teamPhotoCache[person.id];
+    if(photo){image.src=photo;image.hidden=false;message.textContent=''}
+    else{fallback.textContent=initialsFor(person.name);fallback.hidden=false;message.textContent='No profile photo has been added yet.'}
+  }catch(error){if(request===teamPhotoLoad){message.textContent=problem(error);toast(problem(error))}}
+}
+function closeCoworkerPhoto(){
+  teamPhotoLoad++;
+  $('team-photo-viewer').hidden=true;
+  if(teamPhotoTrigger&&document.contains(teamPhotoTrigger))teamPhotoTrigger.focus();
+  teamPhotoTrigger=null;
 }
 function showCoworkerProfile(person){
   profilePerson=person;
@@ -539,6 +596,12 @@ async function openDirectChat(person){
   }catch(error){toast(problem(error))}
 }
 $('team').addEventListener('click',function(event){
+  var photoButton=event.target.closest('[data-person-photo]');
+  if(photoButton){
+    var person=CTX.directory.find(function(item){return item.id===photoButton.dataset.personPhoto});
+    if(person)showCoworkerPhoto(person);
+    return;
+  }
   var action=event.target.closest('[data-person-action]');
   if(action){
     var selected=CTX.directory.find(function(person){return person.id===action.dataset.personId});
@@ -558,6 +621,8 @@ function closeCoworkerProfile(){$('team-profile-modal').hidden=true;profilePerso
 $('close-team-profile').onclick=closeCoworkerProfile;
 $('team-profile-done').onclick=closeCoworkerProfile;
 $('team-profile-modal').addEventListener('click',function(event){if(event.target===this)closeCoworkerProfile()});
+$('close-team-photo').onclick=closeCoworkerPhoto;
+$('team-photo-viewer').addEventListener('click',function(event){if(event.target===this)closeCoworkerPhoto()});
 $('team-profile-chat').onclick=function(){var person=profilePerson;if(person)openDirectChat(person)};
 async function loadTeam(){presenceRows=await api.get('/api/attendance/presence');drawPeople()}
 function setTeamTab(tab){
