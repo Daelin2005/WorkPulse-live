@@ -149,6 +149,7 @@
     '.btn{border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:10px;padding:10px 16px;font-weight:650;line-height:1.25;display:inline-flex;justify-content:center;gap:8px;align-items:center;transition:background .16s,border-color .16s,transform .16s,box-shadow .16s}.btn:hover{border-color:var(--accent2);background:var(--soft);transform:translateY(-1px)}.btn:active{transform:translateY(0)}.btn.primary{background:linear-gradient(135deg,var(--accent),var(--accent2));border-color:var(--accent2);color:#fff;box-shadow:0 5px 16px color-mix(in srgb,var(--accent) 25%,transparent)}.btn.primary:hover{filter:brightness(1.08);box-shadow:0 7px 20px color-mix(in srgb,var(--accent) 32%,transparent)}.btn.danger{border-color:var(--bad);color:var(--bad)}.btn:disabled{opacity:.55;cursor:wait;transform:none}.actions{display:flex;align-items:center;justify-content:flex-end;gap:10px;flex-wrap:wrap;margin-top:12px}.actions.asset-actions{margin-top:16px}',
     '.asset-filters{grid-template-columns:repeat(auto-fit,minmax(min(100%,210px),1fr))}.table-wrap{width:100%}.company-mark,.avatar-photo{width:100%;height:100%;object-fit:cover;border-radius:inherit}.password-field{display:flex;align-items:stretch}.password-field input{min-width:0}.password-field button{flex:none}',
     '.brand-settings{display:flex;justify-content:space-between;align-items:center;gap:20px;padding:16px;border:1px solid var(--line);border-radius:12px;background:var(--card2)}.brand-settings>div:first-child{display:grid;gap:8px}.brand-settings p{margin:0}.brand-preview{width:72px;height:72px;display:grid;place-items:center;flex:none;border:1px dashed var(--line);border-radius:16px;overflow:hidden;color:var(--muted)}.brand-preview img{width:100%;height:100%;object-fit:cover}.avatar-editor{display:flex;align-items:center;gap:16px}.avatar-editor .av{width:72px;height:72px;font-size:20px;overflow:hidden}.avatar-editor>div{display:grid;gap:8px}.field-hint{font-weight:400}',
+    '.photo-editor-backdrop{position:fixed;inset:0;z-index:60;display:grid;place-items:center;padding:18px;background:#0009}.photo-editor-backdrop[hidden]{display:none!important}.photo-editor-dialog{width:min(440px,100%);max-height:calc(100vh - 36px);overflow:auto;padding:22px;border:1px solid var(--line);border-radius:16px;background:var(--card);box-shadow:0 20px 60px #0008}.photo-editor-dialog h2{margin:0 0 4px}.photo-editor-dialog p{margin:0 0 14px;color:var(--muted)}.photo-editor-canvas{display:block;width:min(280px,100%);height:auto;margin:0 auto 16px;border:2px solid var(--line);border-radius:50%;background:var(--card2);touch-action:none;cursor:grab}.photo-editor-canvas:active{cursor:grabbing}.photo-editor-zoom{display:grid;grid-template-columns:1fr auto;align-items:center;gap:4px 12px}.photo-editor-zoom label{grid-column:1/-1}.photo-editor-zoom input{padding:0!important}.photo-editor-actions{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-top:18px}.photo-editor-actions>div{display:flex;gap:8px;flex-wrap:wrap}.avatar-editor .btn[hidden]{display:none!important}',
     '.table-wrap{overflow:auto}table{width:100%;border-collapse:collapse;font-size:14px}th,td{text-align:left;padding:10px 9px;border-bottom:1px solid var(--line);vertical-align:top}th{font-size:12px;color:var(--muted);font-weight:700;white-space:nowrap}.empty{text-align:center;color:var(--muted);padding:22px}.pill{display:inline-block;border-radius:99px;background:var(--soft);color:var(--ink);padding:3px 8px;font-size:12px}',
     '.tab-row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px}.tab-row button[aria-pressed=true]{border-color:var(--accent2);background:var(--soft)}.metric{font-size:24px;font-weight:700}.invite{overflow-wrap:anywhere}.notice{margin:12px 32px 0;padding:12px 14px;border-radius:8px;background:var(--soft);color:var(--ink)}.notice.bad{background:color-mix(in srgb,var(--bad) 18%,var(--card));color:var(--bad)}.notice[hidden]{display:none}',
     '.thp{position:fixed;top:calc(env(safe-area-inset-top,0px) + 60px);right:16px;width:min(300px,calc(100% - 24px));background:var(--card);border:1px solid var(--line);border-radius:14px;padding:10px;box-shadow:0 18px 40px #0009;z-index:30}.thp[hidden]{display:none}.thp h3{margin:2px 6px 8px;font-size:13px}.thg{display:grid;grid-template-columns:1fr 1fr;gap:8px}.tho{display:flex;gap:8px;align-items:center;border:1px solid var(--line);border-radius:10px;padding:8px;background:var(--card2);color:var(--ink);text-align:left;font-weight:600}.tho[aria-pressed=true]{border-color:var(--accent2);background:var(--soft)}.tho i{width:22px;height:22px;border-radius:50%;flex:none;border:2px solid var(--line)}',
@@ -684,8 +685,9 @@
       profile = data[0]; sessions = data[1]; balances = data[2];
       var prefs = profile.preferences || {};
       content.innerHTML = '<div class="grid"><section class="card"><h2>Personal details</h2><form id="profile-form" class="stack">' +
-        '<div class="avatar-editor"><span class="av" id="profile-avatar">?</span><div><b>Profile photo</b><label>Choose a photo<input id="profile-avatar-file" type="file" accept="image/png,image/jpeg,image/gif,image/webp"></label>' +
-        (profile.avatar ? '<button class="btn danger" id="remove-profile-avatar" type="button">Remove photo</button>' : '') + '</div></div>' +
+        '<div class="avatar-editor"><span class="av" id="profile-avatar">?</span><div><b>Profile photo</b><label>Choose or edit a photo<input id="profile-avatar-file" type="file" accept="image/png,image/jpeg,image/gif,image/webp"></label>' +
+        '<button class="btn" id="edit-profile-avatar" type="button"' + (profile.avatar ? '' : ' hidden') + '>Adjust current photo</button>' +
+        '<button class="btn danger" id="remove-profile-avatar" type="button"' + (profile.avatar ? '' : ' hidden') + '>Remove photo</button></div></div>' +
         '<div class="form-grid">' +         field('Name', 'name', { value: profile.name || context.user.name, readonly: true }) +
         field('Work email', 'email', { type: 'email', value: profile.email || context.user.email, readonly: true }) +
         field('Job title', 'jobTitle', { value: profile.jobTitle || '', readonly: true }) +
@@ -711,23 +713,109 @@
         '<section class="card"><h2>Leave balance</h2>' + table(['Leave type', 'Allowance', 'Used', 'Pending', 'Remaining'], balances.types.map(function (b) {
           return '<tr><td>' + esc(b.name) + '</td><td>' + esc(b.allowance) + '</td><td>' + esc(b.used) + '</td><td>' + esc(b.pending) + '</td><td>' +
             (b.remaining === null ? 'Unlimited' : esc(b.remaining)) + '</td></tr>';
-        }).join('')) + '</section>';
+        }).join('')) + '</section>' +
+        '<div class="photo-editor-backdrop" id="photo-editor" hidden><section class="photo-editor-dialog" role="dialog" aria-modal="true" aria-labelledby="photo-editor-title">' +
+        '<h2 id="photo-editor-title">Adjust profile photo</h2><p>Drag to position the photo. Start with the full photo, or zoom in to crop.</p>' +
+        '<canvas class="photo-editor-canvas" id="photo-editor-canvas" width="512" height="512" aria-label="Profile photo crop preview"></canvas>' +
+        '<div class="photo-editor-zoom"><label for="photo-editor-zoom">Zoom</label><input id="photo-editor-zoom" type="range" min="1" max="3" step="0.01" value="1"><output id="photo-editor-zoom-value" for="photo-editor-zoom">1×</output></div>' +
+        '<div class="photo-editor-actions"><button class="btn" id="photo-editor-fit" type="button">Show full photo</button><div><button class="btn" id="photo-editor-cancel" type="button">Cancel</button><button class="btn primary" id="photo-editor-save" type="button">Save photo</button></div></div></section></div>';
       $('#profile-form').addEventListener('submit', async function (event) {
         event.preventDefault(); var phone = new FormData(this).get('phone');
         try { await api.patch('/api/me/profile', { phone: phone || '' }); toast('Phone number saved.'); }
         catch (error) { toast(problem(error), true); }
       });
       setAvatar($('#profile-avatar'), profile.avatar, profile.name || context.user.name);
+      var photoEditor = $('#photo-editor'), photoCanvas = $('#photo-editor-canvas');
+      var photoContext = photoCanvas.getContext('2d'), photoImage = null, photoZoom = 1, photoX = 0, photoY = 0, dragPoint = null;
+      var photoZoomControl = $('#photo-editor-zoom'), photoZoomValue = $('#photo-editor-zoom-value');
+      function drawPhotoPreview() {
+        var size = photoCanvas.width, scale = Math.min(size / photoImage.naturalWidth, size / photoImage.naturalHeight) * photoZoom;
+        var width = photoImage.naturalWidth * scale, height = photoImage.naturalHeight * scale;
+        photoX = Math.max(-Math.max(0, (width - size) / 2), Math.min(Math.max(0, (width - size) / 2), photoX));
+        photoY = Math.max(-Math.max(0, (height - size) / 2), Math.min(Math.max(0, (height - size) / 2), photoY));
+        photoContext.clearRect(0, 0, size, size);
+        photoContext.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--card2').trim() || '#f3f6fd';
+        photoContext.fillRect(0, 0, size, size);
+        photoContext.drawImage(photoImage, (size - width) / 2 + photoX, (size - height) / 2 + photoY, width, height);
+      }
+      function resetPhotoFraming() {
+        photoZoom = 1; photoX = 0; photoY = 0;
+        photoZoomControl.value = '1'; photoZoomValue.value = '1×';
+        drawPhotoPreview();
+      }
+      function openPhotoEditor(source) {
+        return new Promise(function (resolve, reject) {
+          var image = new Image();
+          image.onload = function () {
+            if (!photoContext) { reject(new Error('Photo editing is not supported by this browser.')); return; }
+            photoImage = image;
+            resetPhotoFraming();
+            photoEditor.hidden = false;
+            $('#photo-editor-save').focus();
+            resolve();
+          };
+          image.onerror = function () { reject(new Error('The selected photo could not be opened.')); };
+          image.src = source;
+        });
+      }
+      function closePhotoEditor() {
+        photoEditor.hidden = true;
+        $('#profile-avatar-file').focus();
+      }
+      $('#edit-profile-avatar').addEventListener('click', async function () {
+        try { await openPhotoEditor(profile.avatar); }
+        catch (error) { toast(problem(error), true); }
+      });
       $('#profile-avatar-file').addEventListener('change', async function () {
         if (!this.files || !this.files[0]) return;
+        var file = this.files[0];
+        this.value = '';
         try {
-          var avatar = await readImage(this.files[0], 2 * 1024 * 1024);
+          await openPhotoEditor(await readImage(file, 2 * 1024 * 1024));
+        } catch (error) { toast(problem(error), true); }
+      });
+      photoZoomControl.addEventListener('input', function () {
+        photoZoom = Number(this.value);
+        photoZoomValue.value = photoZoom.toFixed(1).replace(/\.0$/, '') + '×';
+        drawPhotoPreview();
+      });
+      $('#photo-editor-fit').addEventListener('click', resetPhotoFraming);
+      photoCanvas.addEventListener('pointerdown', function (event) {
+        dragPoint = { x: event.clientX, y: event.clientY };
+        photoCanvas.setPointerCapture(event.pointerId);
+      });
+      photoCanvas.addEventListener('pointermove', function (event) {
+        if (!dragPoint) return;
+        var rect = photoCanvas.getBoundingClientRect(), factor = photoCanvas.width / rect.width;
+        photoX += (event.clientX - dragPoint.x) * factor;
+        photoY += (event.clientY - dragPoint.y) * factor;
+        dragPoint = { x: event.clientX, y: event.clientY };
+        drawPhotoPreview();
+      });
+      photoCanvas.addEventListener('pointerup', function () { dragPoint = null; });
+      photoCanvas.addEventListener('pointercancel', function () { dragPoint = null; });
+      $('#photo-editor-cancel').addEventListener('click', closePhotoEditor);
+      photoEditor.addEventListener('click', function (event) {
+        if (event.target === photoEditor) closePhotoEditor();
+      });
+      document.addEventListener('keydown', function (event) {
+        if (event.key === 'Escape' && !photoEditor.hidden) closePhotoEditor();
+      });
+      $('#photo-editor-save').addEventListener('click', async function () {
+        var saveButton = this;
+        saveButton.disabled = true;
+        try {
+          var avatar = photoCanvas.toDataURL('image/jpeg', 0.9);
           await api.patch('/api/me/profile', { avatar: avatar });
           profile.avatar = avatar;
           setAvatar($('#profile-avatar'), avatar, profile.name || context.user.name);
           setAvatar($('.me .av'), avatar, context.user.name);
+          $('#edit-profile-avatar').hidden = false;
+          $('#remove-profile-avatar').hidden = false;
+          closePhotoEditor();
           toast('Profile photo saved.');
         } catch (error) { toast(problem(error), true); }
+        finally { saveButton.disabled = false; }
       });
       var removeAvatar = $('#remove-profile-avatar');
       if (removeAvatar) removeAvatar.addEventListener('click', async function () {
@@ -736,6 +824,8 @@
           profile.avatar = null;
           setAvatar($('#profile-avatar'), null, profile.name || context.user.name);
           setAvatar($('.me .av'), null, context.user.name);
+          $('#edit-profile-avatar').hidden = true;
+          this.hidden = true;
           toast('Profile photo removed.');
           this.remove();
         } catch (error) { toast(problem(error), true); }
